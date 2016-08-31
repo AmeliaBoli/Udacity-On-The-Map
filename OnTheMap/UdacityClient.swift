@@ -8,7 +8,7 @@
 
 import Foundation
 
-class UdacityClient {
+class UdacityClient: Networking {
     
     // MARK: Singleton
     class func sharedInstance() -> UdacityClient {
@@ -19,8 +19,27 @@ class UdacityClient {
     }
     
     // MARK: Properties
-    
     let session = NSURLSession.sharedSession()
+    
+    // Constants
+    struct Constants {
+        static let Scheme = "https"
+        static let Host = "www.udacity.com"
+        static let Path = "/api"
+    }
+    
+    // Methods
+    struct Methods {
+        static let Session = "/session"
+        static var Users = "/users/{accountKey}"
+    }
+    
+    // JSON Body Keys
+    struct JSONBodyKeys {
+        static let Udacity = "udacity"
+        static let Username = "username"
+        static let Password = "password"
+    }
 
     // User info
     var sessionID: String? = nil
@@ -31,9 +50,9 @@ class UdacityClient {
     
     // MARK: Methods
     
-    func getSessionID(username: String, password: String, completionHandlerForSession: (success: Bool, errorSTring: String?) -> Void) {
+    func getSessionID(username: String, password: String, completionHandlerForSession: (success: Bool, errorString: String?) -> Void) {
         
-        let url = NSURL(string: "https://www.udacity.com/api/session")!
+        let url = urlFromComponents(scheme: Constants.Scheme, host: Constants.Host, path: Constants.Path, withPathExtension: Methods.Session, parameters: nil)
         
         let request = NSMutableURLRequest(URL: url)
         
@@ -42,109 +61,96 @@ class UdacityClient {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let bodyString = "{\"udacity\": {\"username\": \"\(username)\", \"password\": \"\(password)\"}}"
+        let bodyDict: [String: AnyObject] = [JSONBodyKeys.Udacity: [JSONBodyKeys.Username: username, JSONBodyKeys.Password: password]]
         
-        request.HTTPBody = bodyString.dataUsingEncoding(NSUTF8StringEncoding)
-        
-        
-        let task = session.dataTaskWithRequest(request) { (data, response, error) in
-            guard error == nil else {
-                print("there is an error \(error?.localizedDescription)")
-                completionHandlerForSession(success: false, errorSTring: "\(error?.localizedDescription)")
-                return
-            }
-            
-            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
-                print("there is an error status code")
-                completionHandlerForSession(success: false, errorSTring: "status code")
-                return
-            }
-            
-            guard let data = data?.subdataWithRange(NSMakeRange(5, (data?.length)! - 5)) else {
-                print("there is an error data")
-                completionHandlerForSession(success: false, errorSTring: "data")
-                return
-            }
-            
-            var parsedData: AnyObject?
-            
-            do {
-                parsedData = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
-            } catch {
-                print("there is an error parsing")
-                completionHandlerForSession(success: false, errorSTring: "parsing")
-                return
-            }
-            
-            guard let session = parsedData?["session"] as? [String: AnyObject],
-                let id = session["id"] as? String else {
-                    print("there is an error session/id")
-                    completionHandlerForSession(success: false, errorSTring: "session/id")
-                    return
-            }
-            
-            guard let account = parsedData?["account"] as? [String: AnyObject],
-                let key = account["key"] as? String else {
-                    print("there is an error account/key")
-                    completionHandlerForSession(success: false, errorSTring: "account/key")
-                    return
-            }
-            
-            self.sessionID = id
-            self.accountKey = key
-            completionHandlerForSession(success: true, errorSTring: nil)
+        let jsonBody: NSData
+        do {
+            jsonBody = try NSJSONSerialization.dataWithJSONObject(bodyDict, options: .PrettyPrinted)
+        } catch {
+            return
         }
         
-        task.resume()
+        request.HTTPBody = jsonBody
+        
+        self.taskForHTTPMethod(request) { (result, error) in
+            guard error == nil else {
+                completionHandlerForSession(success: false, errorString: error?.localizedDescription)
+                return
+            }
+            
+            let data = result.subdataWithRange(NSMakeRange(5, (result.length) - 5))
+            
+            self.deserializeJSONWithCompletionHandler(data) { (data, error) in
+                guard error == nil else {
+                    print("There was an error with deserializing the JSON")
+                    completionHandlerForSession(success: false, errorString: error?.localizedDescription)
+                    return
+                }
+                
+                guard let session = data?["session"] as? [String: AnyObject],
+                    let id = session["id"] as? String else {
+                        print("there is an error session/id")
+                        completionHandlerForSession(success: false, errorString: "session/id")
+                        return
+                }
+                
+                guard let account = data?["account"] as? [String: AnyObject],
+                    let key = account["key"] as? String else {
+                        print("there is an error account/key")
+                        completionHandlerForSession(success: false, errorString: "account/key")
+                        return
+                }
+                
+                self.sessionID = id
+                self.accountKey = key
+                completionHandlerForSession(success: true, errorString: nil)
 
+            }
+        }
     }
     
-    func fetachUserData(completionHandlerForFetchUserData: (success: Bool, errorString: String?) -> Void) {
-        let url = NSURL(string: "https://www.udacity.com/api/users/\(accountKey!)")!
+    func fetchUserData(completionHandlerForFetchUserData: (success: Bool, errorString: String?) -> Void) {
+        let methodWithoutAccountKey = Methods.Users
+        
+        guard let accountKey = accountKey,
+            let completeMethod = substituteKeyInMethod(methodWithoutAccountKey, key: "accountKey", value: String(accountKey)) else {
+                print("There is a problem with the account key and/or method to fetch user data")
+                return
+        }
+        
+        let url = urlFromComponents(scheme: Constants.Scheme, host: Constants.Host, path: Constants.Path, withPathExtension: completeMethod, parameters: nil)
         
         let request = NSURLRequest(URL: url)
         
-        let task = session.dataTaskWithRequest(request) { (data, response, error) in
+        taskForHTTPMethod(request) { (result, error) in
             guard error == nil else {
-                print("there is an error \(error?.localizedDescription)")
-                completionHandlerForFetchUserData(success: false, errorString: "\(error?.localizedDescription)")
+                completionHandlerForFetchUserData(success: false, errorString: error?.localizedDescription)
                 return
             }
             
-            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
-                print("there is an error status code")
-                completionHandlerForFetchUserData(success: false, errorString: "status code")
-                return
-            }
+            let data = result.subdataWithRange(NSMakeRange(5, (result.length) - 5))
             
-            guard let data = data?.subdataWithRange(NSMakeRange(5, (data?.length)! - 5)) else {
-                print("there is an error data")
-                completionHandlerForFetchUserData(success: false, errorString: "data")
-                return
-            }
-            
-            var parsedData: AnyObject?
-            
-            do {
-                parsedData = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
-            } catch {
-                print("there is an error parsing")
-                completionHandlerForFetchUserData(success: false, errorString: "parsing")
-                return
-            }
-            
-            guard let user = parsedData?["user"] as? [String: AnyObject],
-            let firstName = user["first_name"] as? String,
-                let lastName = user["last_name"] as? String else {
-                    print("there is an error user/first/lastname")
-                    completionHandlerForFetchUserData(success: false, errorString: "user/first/last_name")
+            self.deserializeJSONWithCompletionHandler(data) { (data, error) in
+                guard error == nil else {
+                    print("There was an error with deserializing the JSON")
+                    completionHandlerForFetchUserData(success: false, errorString: error?.localizedDescription)
                     return
+                }
+
+                
+                guard let user = data?["user"] as? [String: AnyObject],
+                    let firstName = user["first_name"] as? String,
+                    let lastName = user["last_name"] as? String else {
+                        print("there is an error user/first/lastname")
+                        completionHandlerForFetchUserData(success: false, errorString: "user/first/last_name")
+                        return
+                }
+                
+                self.firstName = firstName
+                self.lastName = lastName
+                completionHandlerForFetchUserData(success: true, errorString: nil)
+
             }
-            
-            self.firstName = firstName
-            self.lastName = lastName
-            completionHandlerForFetchUserData(success: true, errorString: nil)
         }
-        task.resume()
     }
 }

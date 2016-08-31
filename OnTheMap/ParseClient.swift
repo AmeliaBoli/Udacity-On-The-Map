@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ParseClient {
+class ParseClient: Networking {
     
     // MARK: Singleton
     class func sharedInstance() -> ParseClient {
@@ -24,6 +24,42 @@ class ParseClient {
     
     let session = NSURLSession.sharedSession()
     let udacitySession = UdacityClient.sharedInstance()
+    
+    // Constants
+    struct Constants {
+        static let Scheme = "https"
+        static let Host = "parse.udacity.com"
+        static let Path = "/parse/classes"
+    }
+    
+    // Methods
+    struct Methods {
+        static let StudentLocation = "/StudentLocation"
+        //static var Users = "/users/{accountKey}"
+    }
+    
+    // Parameter Keys
+    struct ParameterKeys {
+        static let Limit = "limit"
+        static let Order = "order"
+    }
+    
+    // Parameter Values
+    struct ParameterValues {
+        static let NumberOfEntries = 100
+        static let ReverseChronological = "-updatedAt"
+    }
+    
+    // JSON Body Keys
+    struct JSONBodyKeys {
+        static let UniqueKey = "uniqueKey"
+        static let FirstName = "firstName"
+        static let LastName = "lastName"
+        static let MapString = "mapString"
+        static let MediaURL = "mediaURL"
+        static let Latitude = "latitude"
+        static let Longitude = "longitude"
+    }
     
     // MARK: Location Model
     struct StudentInformation   {
@@ -45,6 +81,7 @@ class ParseClient {
                 let longitude = dictionary["longitude"] as? Double,
                 let mediaURL = dictionary["mediaURL"] as? String else {
                     print("There was an error extracting the data to create a Student")
+                    print(dictionary)
                     self.firstName = ""
                     self.lastName = ""
                     self.latitude = 0
@@ -63,7 +100,6 @@ class ParseClient {
         static func studentsFromResults(results: [[String:AnyObject]]) -> [StudentInformation] {
             
             var students = [StudentInformation]()
-            
             // iterate through array of dictionaries, each Movie is a dictionary
             for result in results {
                 students.append(StudentInformation(dictionary: result))
@@ -71,77 +107,50 @@ class ParseClient {
             
             return students
         }
-
     }
     
     var students = [StudentInformation]()
     
     // MARK: Methods
-    func getLast100UserLocations(completionHandlerForLocations: (success: Bool, errorString: String?) -> Void) {
-        let url = NSURL(string: "https://parse.udacity.com/parse/classes/StudentLocation?limit=100&order=-updatedAt")!
+    func getLast100UserLocations(completionHandlerForLocations: (success: Bool, errorString: NSError?) -> Void) {
+        let paramaters: [String: AnyObject] = [ParameterKeys.Limit: ParameterValues.NumberOfEntries, ParameterKeys.Order: ParameterValues.ReverseChronological]
+        
+        let url = urlFromComponents(scheme: Constants.Scheme, host: Constants.Host, path: Constants.Path, withPathExtension: Methods.StudentLocation, parameters: paramaters)
         
         let request = NSMutableURLRequest(URL: url)
         
         request.addValue("\(self.parseApplicationID)", forHTTPHeaderField: "X-Parse-Application-Id")
         request.addValue("\(self.restAPIKey)", forHTTPHeaderField: "X-Parse-REST-API-Key")
         
-        let task = session.dataTaskWithRequest(request) { (data, response, error) in
+        taskForHTTPMethod(request) { (result, error) in
             guard error == nil else {
-                print("there is an error \(error?.localizedDescription)")
-                completionHandlerForLocations(success: false, errorString: error?.localizedDescription)
+                print("There was an error with taskForHTTPMethod")
+                completionHandlerForLocations(success: false, errorString: error)
                 return
             }
             
-            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
-                print("there is an error status code")
-                completionHandlerForLocations(success: false, errorString: "statusCode")
-                return
+            self.deserializeJSONWithCompletionHandler(result) { (result, error) in
+                guard error == nil else {
+                    print("There was an error with deserializing the JSON")
+                    completionHandlerForLocations(success: false, errorString: error)
+                    return
+                }
+                
+                guard let locations = result["results"] as? [[String: AnyObject]] else {
+                    print("There was an error with results key in \(result)")
+                    let nsError = NSError(domain: "getLast100UserLocations", code: 1, userInfo: nil)
+                    completionHandlerForLocations(success: false, errorString: nsError)
+                    return
+                }
+                self.students = StudentInformation.studentsFromResults(locations)
+                
+                completionHandlerForLocations(success: true, errorString: nil)
             }
-            
-            guard let data = data else {
-                print("there is an error with the data")
-                completionHandlerForLocations(success: false, errorString: "data")
-                return
-            }
-            
-            var parsedData: AnyObject?
-            
-            do {
-                parsedData = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
-            } catch {
-                print("there is an error parsedData")
-                completionHandlerForLocations(success: false, errorString: "parsedData")
-            }
-            
-            guard let locations = parsedData?["results"] as? [[String: AnyObject]] else {
-                print("there is an error results")
-                completionHandlerForLocations(success: false, errorString: "results")
-                return
-            }
-            
-//            for location in locations {
-//                guard let firstName = location["firstName"] as? String,
-//                let lastName = location["lastName"] as? String,
-//                let latitude = location["latitude"] as? Double,
-//                let longitude = location["longitude"] as? Double,
-//                    let mediaURL = location["mediaURL"] as? String else {
-//                        print("there is an error locations")
-//                        completionHandlerForLocations(success: false, errorString: "locations")
-//                        return
-//                }
-            
-            self.students = StudentInformation.studentsFromResults(locations)
-            //StudentInformation(firstName: firstName, lastName: lastName, latitude: latitude, longitude: longitude, mediaURL: mediaURL)
-                //self.students.append(student)
-            //}
-                        
-            completionHandlerForLocations(success: true, errorString: nil)
         }
-        task.resume()
     }
     
-    func postLocation(mapString: String, mediaURL: String, latitude: Double, longitude: Double, completionHandlerForPostingLocations: (success: Bool, errorString: String?) -> Void) {
-        let url = NSURL(string: "https://parse.udacity.com/parse/classes/StudentLocation")!
+    func postLocation(mapString: String, mediaURL: String, latitude: Double, longitude: Double, completionHandlerForPostingLocations: (success: Bool, errorString: NSError?) -> Void) {
+        let url = urlFromComponents(scheme: Constants.Scheme, host: Constants.Host, path: Constants.Path, withPathExtension: Methods.StudentLocation, parameters: nil)
         
         let request = NSMutableURLRequest(URL: url)
         
@@ -151,46 +160,41 @@ class ParseClient {
         request.addValue("\(self.restAPIKey)", forHTTPHeaderField: "X-Parse-REST-API-Key")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let bodyString = "{\"uniqueKey\": \"\(udacitySession.accountKey!)\", \"firstName\": \"\(udacitySession.firstName!)\", \"lastName\": \"\(udacitySession.lastName!)\",\"mapString\": \"\(mapString)\", \"mediaURL\": \"\(mediaURL)\",\"latitude\": \(latitude), \"longitude\": \(longitude)}"
-        request.HTTPBody = bodyString.dataUsingEncoding(NSUTF8StringEncoding)
+        let bodyDict: [String: AnyObject] = [JSONBodyKeys.UniqueKey: udacitySession.accountKey!, JSONBodyKeys.FirstName: udacitySession.firstName!, JSONBodyKeys.LastName: udacitySession.lastName!, JSONBodyKeys.MapString: mapString, JSONBodyKeys.MediaURL: mediaURL, JSONBodyKeys.Latitude: latitude, JSONBodyKeys.Longitude: longitude]
         
-        let task = session.dataTaskWithRequest(request) { (data, response, error) in
-            guard error == nil else {
-                print("there is an error \(error?.localizedDescription)")
-                completionHandlerForPostingLocations(success: false, errorString: (error?.localizedDescription)!)
-                return
-            }
-            
-            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
-                print("there is an error status code")
-                completionHandlerForPostingLocations(success: false, errorString: "statusCode")
-                return
-            }
-            
-            guard let data = data else {
-                print("there is an error with the data")
-                completionHandlerForPostingLocations(success: false, errorString: "data")
-                return
-            }
-            
-            var parsedData: AnyObject?
-            
-            do {
-                parsedData = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
-            } catch {
-                print("there is an error parsing")
-                completionHandlerForPostingLocations(success: false, errorString: "parsing")
-                return
-            }
-            
-            guard let creationDate = parsedData?["createdAt"],
-                let objectID = parsedData?["objectId"] else {
-                    print("there is an error createdAt/objectId")
-                    completionHandlerForPostingLocations(success: false, errorString: "createdAt/objectId")
-                    return
-            }
-            completionHandlerForPostingLocations(success: true, errorString: nil)
+        let jsonBody: NSData
+        do {
+            jsonBody = try NSJSONSerialization.dataWithJSONObject(bodyDict, options: .PrettyPrinted)
+        } catch {
+            return
         }
-        task.resume()
+        
+        request.HTTPBody = jsonBody
+        
+        self.taskForHTTPMethod(request) { (result, error) in
+            guard error == nil else {
+                print("There was an error with taskForHTTPMethod")
+                completionHandlerForPostingLocations(success: false, errorString: error)
+                return
+            }
+            
+            self.deserializeJSONWithCompletionHandler(result) { (result, error) in
+                guard error == nil else {
+                    print("There was an error with deserializing the JSON")
+                    completionHandlerForPostingLocations(success: false, errorString: error)
+                    return
+                }
+                
+                guard let creationDate = result?["createdAt"],
+                    let objectID = result?["objectId"] else {
+                        let errorString = "There is an error grabbing the creation date or object ID"
+                        print(errorString)
+                         let nsError = NSError(domain: "postLocation", code: 1, userInfo: nil)
+                        completionHandlerForPostingLocations(success: false, errorString: nsError)
+                        return
+                }
+                completionHandlerForPostingLocations(success: true, errorString: nil)
+            }   
+        }
     }
 }

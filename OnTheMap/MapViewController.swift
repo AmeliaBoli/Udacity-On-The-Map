@@ -18,7 +18,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        loadMap(nil)
         
         // Do any additional setup after loading the view.
     }
@@ -28,28 +28,27 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         
         // 1. Get info from Parse
         
-        parseSession.getLast100UserLocations() { (success, error) in
-            guard error == nil && success == true else {
-                print("there is an error getLast100UserLocations")
-                return
             }
-            
-            self.createMapAnotations()
-            
-            dispatch_async(dispatch_get_main_queue()) {
-                 // 2. Load info into map
-                self.mapView.addAnnotations(self.annotations)
-            }
-        }
-    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-    func updateMap() {
-        
+    @IBAction func loadMap(sender: UIBarButtonItem?) {
+        parseSession.getLast100UserLocations() { (success, error) in
+            guard error == nil && success == true else {
+                print(error?.localizedDescription)
+                return
+            }
+            
+            self.createMapAnotations()
+            
+            dispatch_async(dispatch_get_main_queue()) {
+                // 2. Load info into map
+                self.mapView.addAnnotations(self.annotations)
+            }
+        }
     }
     
     func createMapAnotations() {
@@ -87,17 +86,50 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         return pinView
     }
     
+    func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        guard let urlString = view.annotation?.subtitle else {
+            print("There is a problem with \(view) annotation")
+            return
+        }
+        
+        let url: NSURL
+        do {
+            url = try urlString!.createValidURL()
+        } catch String.UrlErrors.invalidString {
+            print("invalidString")
+            //postErrorLabel.text = "I can't seem to make a valid URL from what was inputted"
+            return
+        } catch String.UrlErrors.invalidComponents {
+            print("invalidComponents")
+            //postErrorLabel.text = "I can't seem to make a valid URL from what was inputted"
+            return
+        } catch String.UrlErrors.noDataDetector {
+            print("noDataDetector")
+            //postErrorLabel.text = "There was an internal error"
+            return
+        } catch String.UrlErrors.noHost {
+            print("noHost")
+            //postErrorLabel.text = "There seems to be no host- https://"
+            return
+        } catch String.UrlErrors.wrongNumberOfLinks {
+            print("wrongNumberOfLinks")
+            //postErrorLabel.text = "You might be missing the domain- .com"
+            return
+        } catch String.UrlErrors.invalidCharacter {
+            print("invalidCharacter")
+            // FIXME: Have the actual bad character pass through to here and add it to the error message to the user
+            //postErrorLabel.text = "There was a character in the URL that is not allowed"
+            return
+        } catch {
+            print("some other error")
+            //postErrorLabel.text = "Hmm...something went wrong"
+            return
+        }
+        
+        UIApplication.sharedApplication().openURL(url)
+    }
+    
     @IBAction func prepareForUnwind(segue: UIStoryboardSegue) {
         
     }
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-}
+ }

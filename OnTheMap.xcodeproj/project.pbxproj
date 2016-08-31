@@ -17,6 +17,8 @@
 		AE8678DD1D6B96D200E76B48 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8678DC1D6B96D200E76B48 /* MapViewController.swift */; };
 		AE8678FF1D6BB61000E76B48 /* ParseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8678FE1D6BB61000E76B48 /* ParseClient.swift */; };
 		AE8679011D6BD0EF00E76B48 /* CreatePinViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8679001D6BD0EF00E76B48 /* CreatePinViewController.swift */; };
+		AE8FB2021D7503B6008A95F6 /* StringExtensionForURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8FB2011D7503B6008A95F6 /* StringExtensionForURL.swift */; };
+		AEBB0FA41D762A6D004AB94C /* NetworkingProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBB0FA31D762A6D004AB94C /* NetworkingProtocol.swift */; };
 		AEE442201D6D10920039EB5A /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4421F1D6D10920039EB5A /* TableViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -29,10 +31,12 @@
 		AE8678CD1D6B770400E76B48 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AE8678CF1D6B770400E76B48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AE8678D61D6B79B500E76B48 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		AE8678D91D6B7DA600E76B48 /* UdacityClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UdacityClient.swift; sourceTree = "<group>"; };
+		AE8678D91D6B7DA600E76B48 /* UdacityClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = UdacityClient.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		AE8678DC1D6B96D200E76B48 /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
-		AE8678FE1D6BB61000E76B48 /* ParseClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParseClient.swift; sourceTree = "<group>"; };
+		AE8678FE1D6BB61000E76B48 /* ParseClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ParseClient.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		AE8679001D6BD0EF00E76B48 /* CreatePinViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreatePinViewController.swift; sourceTree = "<group>"; };
+		AE8FB2011D7503B6008A95F6 /* StringExtensionForURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensionForURL.swift; sourceTree = "<group>"; };
+		AEBB0FA31D762A6D004AB94C /* NetworkingProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkingProtocol.swift; sourceTree = "<group>"; };
 		AEE4421F1D6D10920039EB5A /* TableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -66,6 +70,7 @@
 		AE8678C21D6B770400E76B48 /* OnTheMap */ = {
 			isa = PBXGroup;
 			children = (
+				AE8FB2011D7503B6008A95F6 /* StringExtensionForURL.swift */,
 				AE8678C31D6B770400E76B48 /* AppDelegate.swift */,
 				AE8678D51D6B799700E76B48 /* Controllers */,
 				AE8678D81D6B79C200E76B48 /* Model */,
@@ -102,6 +107,7 @@
 			children = (
 				AE8678D91D6B7DA600E76B48 /* UdacityClient.swift */,
 				AE8678FE1D6BB61000E76B48 /* ParseClient.swift */,
+				AEBB0FA31D762A6D004AB94C /* NetworkingProtocol.swift */,
 			);
 			name = Clients;
 			sourceTree = "<group>";
@@ -138,6 +144,7 @@
 				TargetAttributes = {
 					AE8678BF1D6B770400E76B48 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = ZEE8KAFFYS;
 					};
 				};
 			};
@@ -180,9 +187,11 @@
 				AE8678FF1D6BB61000E76B48 /* ParseClient.swift in Sources */,
 				AE8678DA1D6B7DA600E76B48 /* UdacityClient.swift in Sources */,
 				AE8678C61D6B770400E76B48 /* LoginViewController.swift in Sources */,
+				AEBB0FA41D762A6D004AB94C /* NetworkingProtocol.swift in Sources */,
 				AEE442201D6D10920039EB5A /* TableViewController.swift in Sources */,
 				AE8678C41D6B770400E76B48 /* AppDelegate.swift in Sources */,
 				AE8678DD1D6B96D200E76B48 /* MapViewController.swift in Sources */,
+				AE8FB2021D7503B6008A95F6 /* StringExtensionForURL.swift in Sources */,
 				AE8678D71D6B79B500E76B48 /* Constants.swift in Sources */,
 				AE8679011D6BD0EF00E76B48 /* CreatePinViewController.swift in Sources */,
 			);
@@ -297,10 +306,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = OnTheMap/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AmeliaBoli.OnTheMap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -308,10 +320,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = OnTheMap/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AmeliaBoli.OnTheMap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

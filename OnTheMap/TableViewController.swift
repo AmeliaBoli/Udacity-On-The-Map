@@ -41,6 +41,53 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         return cell
     }
     
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let row = indexPath.row
+        
+        guard let student = students?[row] else {
+            print("There is a problem with the student at row \(row)")
+            return
+        }
+        
+        let urlString = student.mediaURL
+        
+        let url: NSURL
+        do {
+            url = try urlString.createValidURL()
+        } catch String.UrlErrors.invalidString {
+            print("invalidString")
+            //postErrorLabel.text = "I can't seem to make a valid URL from what was inputted"
+            return
+        } catch String.UrlErrors.invalidComponents {
+            print("invalidComponents")
+            //postErrorLabel.text = "I can't seem to make a valid URL from what was inputted"
+            return
+        } catch String.UrlErrors.noDataDetector {
+            print("noDataDetector")
+            //postErrorLabel.text = "There was an internal error"
+            return
+        } catch String.UrlErrors.noHost {
+            print("noHost")
+            //postErrorLabel.text = "There seems to be no host- https://"
+            return
+        } catch String.UrlErrors.wrongNumberOfLinks {
+            print("wrongNumberOfLinks")
+            //postErrorLabel.text = "You might be missing the domain- .com"
+            return
+        } catch String.UrlErrors.invalidCharacter {
+            print("invalidCharacter")
+            // FIXME: Have the actual bad character pass through to here and add it to the error message to the user
+            //postErrorLabel.text = "There was a character in the URL that is not allowed"
+            return
+        } catch {
+            print("some other error")
+            //postErrorLabel.text = "Hmm...something went wrong"
+            return
+        }
+        
+        UIApplication.sharedApplication().openURL(url)
+    }
+    
     /*
     // MARK: - Navigation
 
