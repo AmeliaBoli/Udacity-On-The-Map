@@ -12,6 +12,8 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
 
     @IBOutlet weak var tableView: UITableView!
     
+    let refreshControl = UIRefreshControl()
+
     let parseSession = ParseClient.sharedInstance()
     var students: [ParseClient.StudentInformation]?
     
@@ -19,6 +21,9 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         super.viewDidLoad()
         
         students = parseSession.students
+        
+        refreshControl.addTarget(self, action: #selector(reloadStudents), forControlEvents: .ValueChanged)
+        tableView.addSubview(refreshControl)
         // Do any additional setup after loading the view.
     }
 
@@ -27,6 +32,23 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         // Dispose of any resources that can be recreated.
     }
     
+    @IBAction func reloadStudents() {
+        parseSession.getLast100UserLocations() { (success, error) in
+            guard error == nil && success == true else {
+                print(error?.localizedDescription)
+                return
+            }
+            
+            self.students = self.parseSession.students
+            
+            dispatch_async(dispatch_get_main_queue()) {
+                self.tableView.reloadData()
+                
+                if self.refreshControl.refreshing { self.refreshControl.endRefreshing() }
+            }
+        }
+    }
+
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return students!.count
     }
@@ -88,6 +110,19 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         UIApplication.sharedApplication().openURL(url)
     }
     
+    
+    
+    @IBAction func prepareForUnwind(segue: UIStoryboardSegue) {
+        
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "unwindToLogout" {
+            let udacitySession = UdacityClient.sharedInstance()
+            udacitySession.logout()
+        }
+    }
+
     /*
     // MARK: - Navigation
 

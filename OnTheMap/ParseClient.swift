@@ -81,7 +81,6 @@ class ParseClient: Networking {
                 let longitude = dictionary["longitude"] as? Double,
                 let mediaURL = dictionary["mediaURL"] as? String else {
                     print("There was an error extracting the data to create a Student")
-                    print(dictionary)
                     self.firstName = ""
                     self.lastName = ""
                     self.latitude = 0

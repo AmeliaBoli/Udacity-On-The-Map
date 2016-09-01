@@ -6,7 +6,7 @@
 //  Copyright © 2016 Amelia Boli. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 protocol Networking {
     func substituteKeyInMethod(method: String, key: String, value: String) -> String?
@@ -14,6 +14,7 @@ protocol Networking {
     func taskForHTTPMethod(request: NSURLRequest, completionHandlerForMethod: (result: NSData!, error: NSError?) -> Void) -> NSURLSessionDataTask
      func deserializeJSONWithCompletionHandler(data: NSData, completionHandlerForDeserializeJSON: (result: AnyObject!, error: NSError?) -> Void)
      func sendError(error: String, domain: String, completionHandlerForSendError: (result: NSData!, error: NSError?) -> Void)
+    func manageNetworkIndicator(turnOn: Bool)
 }
 
 extension Networking {
@@ -57,6 +58,8 @@ extension Networking {
         
         let task = NSURLSession.sharedSession().dataTaskWithRequest(request) { (data, response, error) in
             
+            self.manageNetworkIndicator(false)
+            
             let domain = "taskForHTTPMethod"
             
             /* GUARD: Was there an error? */
@@ -96,6 +99,7 @@ extension Networking {
         }
         
         /* 7. Start the request */
+        manageNetworkIndicator(true)
         task.resume()
         return task
     }
@@ -117,5 +121,15 @@ extension Networking {
         let userInfo = [NSLocalizedDescriptionKey : error]
         let nsError = NSError(domain: domain, code: 1, userInfo: userInfo)
         completionHandlerForSendError(result: nil, error: nsError)
+    }
+    
+    func manageNetworkIndicator(turnOn: Bool) {
+        let application = UIApplication.sharedApplication()
+        
+        if turnOn && !application.networkActivityIndicatorVisible {
+            application.networkActivityIndicatorVisible = true
+        } else if !turnOn && application.networkActivityIndicatorVisible {
+            application.networkActivityIndicatorVisible = false
+        }
     }
 }

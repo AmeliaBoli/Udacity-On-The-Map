@@ -38,20 +38,29 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     @IBAction func loadMap(sender: UIBarButtonItem?) {
         parseSession.getLast100UserLocations() { (success, error) in
             guard error == nil && success == true else {
-                print(error?.localizedDescription)
+                let errorString = error?.localizedDescription
+                print(errorString)
+                
+                dispatch_async(dispatch_get_main_queue()) {
+                    self.alertUserToFailure(errorString!)
+                }
                 return
             }
             
+            let annotationsToRemove = self.annotations
             self.createMapAnotations()
             
             dispatch_async(dispatch_get_main_queue()) {
                 // 2. Load info into map
+                
+                self.mapView.removeAnnotations(annotationsToRemove)
                 self.mapView.addAnnotations(self.annotations)
             }
         }
     }
     
     func createMapAnotations() {
+        annotations.removeAll()
         let students = parseSession.students
         
         for student in students {
@@ -129,7 +138,26 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         UIApplication.sharedApplication().openURL(url)
     }
     
+    func alertUserToFailure(errorMessage: String) {
+        let alert = UIAlertController(title: "Sorry!", message: errorMessage, preferredStyle: .Alert)
+        
+        let tryAgainAction = UIAlertAction(title: "Try Again", style: .Default, handler: { alert in self.loadMap(nil) })
+        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+        
+        alert.addAction(cancel)
+        alert.addAction(tryAgainAction)
+        
+        presentViewController(alert, animated: true, completion: nil)
+    }
+    
     @IBAction func prepareForUnwind(segue: UIStoryboardSegue) {
         
     }
- }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "unwindToLogout" {
+            let udacitySession = UdacityClient.sharedInstance()
+            udacitySession.logout()
+        }
+    }
+}

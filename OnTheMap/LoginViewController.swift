@@ -13,6 +13,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var usernameField: UITextField!
     @IBOutlet weak var passwordField: UITextField!
     @IBOutlet weak var errorMessageLabel: UILabel!
+    @IBOutlet weak var maskingView: UIView!
+    
+    let application = UIApplication.sharedApplication()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,12 +37,18 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 return
         }
         
+        
         let udacitySession = UdacityClient.sharedInstance()
         
+        maskingView.hidden = false
         udacitySession.getSessionID(username, password: password) { (success, error) in
+            
+            self.maskingView.hidden = true
+            
             guard error == nil && success == true else {
                 print("error with getSesssionID")
                 dispatch_async(dispatch_get_main_queue()) {
+                    self.maskingView.hidden = true
                     self.errorMessageLabel.text = error!
                 }
                 return
@@ -78,8 +87,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         view.endEditing(true)
     }
     
-    func textFieldDidEndEditing(textField: UITextField) {
+    func textFieldDidBeginEditing(textField: UITextField) {
         errorMessageLabel.text = ""
+    }
+    
+    @IBAction func prepareForUnwindToLogout(segue: UIStoryboardSegue) {
+        usernameField.text = ""
+        passwordField.text = ""
+        maskingView.hidden = true
     }
 }
 

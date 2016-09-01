@@ -153,4 +153,11 @@ class UdacityClient: Networking {
             }
         }
     }
+    
+    func logout() {
+        sessionID = ""
+        accountKey = ""
+        firstName = ""
+        lastName = ""
+    }
 }
