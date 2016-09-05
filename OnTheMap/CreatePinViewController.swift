@@ -172,21 +172,37 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
             
             let parseSession = ParseClient.sharedInstance()
             
-            // FIXME: grab location description from placemark
-            parseSession.postLocation(self.locationTextField.text!, mediaURL: url.absoluteString, latitude: self.latitude!, longitude: self.longitude!) { (success, error) in
-                guard error == nil && success == true else {
-                    print("There is an error with postLocation")
-                    self.geocodeFailedLabel.text = error?.localizedDescription
-                    return
+            if parseSession.objectID == nil {
+                
+                // FIXME: grab location description from placemark
+                parseSession.postLocation(self.locationTextField.text!, mediaURL: url.absoluteString, latitude: self.latitude!, longitude: self.longitude!) { (success, error) in
+                    guard error == nil && success == true else {
+                        print("There is an error with postLocation")
+                        self.geocodeFailedLabel.text = error?.localizedDescription
+                        return
+                    }
+                    
+                    
+                    dispatch_async(dispatch_get_main_queue()) {
+                        self.dismissViewControllerAnimated(true, completion: nil)
+                    }
                 }
                 
-                
-                dispatch_async(dispatch_get_main_queue()) {
-                    self.dismissViewControllerAnimated(true, completion: nil)
+            } else {
+                parseSession.updateLocation(self.locationTextField.text!, mediaURL: url.absoluteString, latitude: self.latitude!, longitude: self.longitude!) { (sucess, error) in
+                    guard error == nil && success == true else {
+                        print("There is an error with updateLocation")
+                        self.geocodeFailedLabel.text = error?.localizedDescription
+                        return
+                    }
+                    
+                    
+                    dispatch_async(dispatch_get_main_queue()) {
+                        self.dismissViewControllerAnimated(true, completion: nil)
+                    }
                 }
             }
         }
-
     }
     
     func textFieldDidBeginEditing(textField: UITextField) {

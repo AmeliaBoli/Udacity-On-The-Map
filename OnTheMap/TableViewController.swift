@@ -116,10 +116,20 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
     }
     
+//    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+//        if segue.
+//    }
+    
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "unwindToLogout" {
             let udacitySession = UdacityClient.sharedInstance()
-            udacitySession.logout()
+            udacitySession.logout() { (success, error) in
+                guard error == nil else {
+                    print("Error")
+                    return false
+                }
+                return true
+            }
         }
     }
 

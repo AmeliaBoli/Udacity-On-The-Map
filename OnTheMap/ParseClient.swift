@@ -25,6 +25,8 @@ class ParseClient: Networking {
     let session = NSURLSession.sharedSession()
     let udacitySession = UdacityClient.sharedInstance()
     
+    var objectID: String? = nil
+    
     // Constants
     struct Constants {
         static let Scheme = "https"
@@ -99,11 +101,9 @@ class ParseClient: Networking {
         static func studentsFromResults(results: [[String:AnyObject]]) -> [StudentInformation] {
             
             var students = [StudentInformation]()
-            // iterate through array of dictionaries, each Movie is a dictionary
             for result in results {
                 students.append(StudentInformation(dictionary: result))
             }
-            
             return students
         }
     }
@@ -144,6 +144,60 @@ class ParseClient: Networking {
                 self.students = StudentInformation.studentsFromResults(locations)
                 
                 completionHandlerForLocations(success: true, errorString: nil)
+            }
+        }
+    }
+    
+    func fetchLocationForUser(completionHandlerForFetchLocationForUser: (success: Bool, locationExists: Bool?, errorString: String?) -> Void) {
+        guard let accountKey = udacitySession.accountKey else {
+            let errorString = "There was a problem fetching the user location: no account key"
+            print(errorString)
+            completionHandlerForFetchLocationForUser(success: false, locationExists: nil, errorString: errorString)
+            return
+        }
+        
+        let url = urlFromComponents(scheme: Constants.Scheme, host: Constants.Host, path: Constants.Path, withPathExtension: Methods.StudentLocation, parameters: ["where": "{\"uniqueKey\": \"\(accountKey)\"}"])
+        
+        let request = NSMutableURLRequest(URL: url)
+        
+        request.addValue("\(self.parseApplicationID)", forHTTPHeaderField: "X-Parse-Application-Id")
+        request.addValue("\(self.restAPIKey)", forHTTPHeaderField: "X-Parse-REST-API-Key")
+        
+        self.taskForHTTPMethod(request) { (result, error) in
+            guard error == nil else {
+                print("There was an error with fetching the user location")
+                completionHandlerForFetchLocationForUser(success: false, locationExists: nil, errorString: error?.localizedDescription)
+                return
+            }
+            
+            self.deserializeJSONWithCompletionHandler(result) { (result, error) in
+                guard error == nil else {
+                    print("There was an error with deserializing the JSON")
+                    completionHandlerForFetchLocationForUser(success: false, locationExists: nil, errorString: error?.localizedDescription)
+                    return
+                }
+                                
+                guard let results = result["results"] as? [[String: AnyObject]] else {
+                    let errorString = "There was a problem with the results received for an existing location."
+                    print(errorString)
+                    completionHandlerForFetchLocationForUser(success: false, locationExists: nil, errorString: errorString)
+                    return
+                }
+                
+                if results.isEmpty {
+                    completionHandlerForFetchLocationForUser(success: true, locationExists: false, errorString: nil)
+                    return
+                }
+               
+                guard let objectID = results.last?["objectId"] as? String else {
+                    let errorString = "There was a problem fetching the user location: results/objectID key in \(result)"
+                    print(errorString)
+                    completionHandlerForFetchLocationForUser(success: false, locationExists: nil, errorString: errorString)
+                    return
+                }
+                
+                self.objectID = objectID
+                completionHandlerForFetchLocationForUser(success: true, locationExists: true, errorString: nil)
             }
         }
     }
@@ -195,5 +249,66 @@ class ParseClient: Networking {
                 completionHandlerForPostingLocations(success: true, errorString: nil)
             }   
         }
+    }
+    
+    func updateLocation(mapString: String, mediaURL: String, latitude: Double, longitude: Double, completionHandlerForUpdateLocation: (success: Bool, errorString: NSError?) -> Void) {
+        guard let objectID = objectID else {
+            let errorString = "There was no object id while trying to update the location"
+            print(errorString)
+            let nsError = NSError(domain: "updateLocation", code: 1, userInfo: nil)
+            completionHandlerForUpdateLocation(success: false, errorString: nsError)
+            return
+        }
+        let pathExtension = Methods.StudentLocation + "/" + objectID
+        
+        let url = urlFromComponents(scheme: Constants.Scheme, host: Constants.Host, path: Constants.Path, withPathExtension: pathExtension, parameters: nil)
+        
+        let request = NSMutableURLRequest(URL: url)
+        
+        request.HTTPMethod = "PUT"
+        
+        request.addValue("\(self.parseApplicationID)", forHTTPHeaderField: "X-Parse-Application-Id")
+        request.addValue("\(self.restAPIKey)", forHTTPHeaderField: "X-Parse-REST-API-Key")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let bodyDict: [String: AnyObject] = [JSONBodyKeys.UniqueKey: udacitySession.accountKey!, JSONBodyKeys.FirstName: udacitySession.firstName!, JSONBodyKeys.LastName: udacitySession.lastName!, JSONBodyKeys.MapString: mapString, JSONBodyKeys.MediaURL: mediaURL, JSONBodyKeys.Latitude: latitude, JSONBodyKeys.Longitude: longitude]
+        
+        let jsonBody: NSData
+        do {
+            jsonBody = try NSJSONSerialization.dataWithJSONObject(bodyDict, options: .PrettyPrinted)
+        } catch {
+            return
+        }
+        
+        request.HTTPBody = jsonBody
+        
+        self.taskForHTTPMethod(request) { (result, error) in
+            guard error == nil else {
+                print("There was an error with taskForHTTPMethod")
+                completionHandlerForUpdateLocation(success: false, errorString: error)
+                return
+            }
+            
+            self.deserializeJSONWithCompletionHandler(result) { (result, error) in
+                guard error == nil else {
+                    print("There was an error with deserializing the JSON")
+                    completionHandlerForUpdateLocation(success: false, errorString: error)
+                    return
+                }
+                
+                guard let updatedAt = result?["updatedAt"] else {
+                        let errorString = "There is an error grabbing the updated date"
+                        print(errorString)
+                        let nsError = NSError(domain: "updateLocation", code: 1, userInfo: nil)
+                        completionHandlerForUpdateLocation(success: false, errorString: nsError)
+                        return
+                }
+                completionHandlerForUpdateLocation(success: true, errorString: nil)
+            }
+        }
+    }
+
+    func logout() {
+        objectID = nil
     }
 }

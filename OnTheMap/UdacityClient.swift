@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import FBSDKLoginKit
 
 class UdacityClient: Networking {
     
@@ -50,7 +51,7 @@ class UdacityClient: Networking {
     
     // MARK: Methods
     
-    func getSessionID(username: String, password: String, completionHandlerForSession: (success: Bool, errorString: String?) -> Void) {
+    func getSessionID(username: String?, password: String?, completionHandlerForSession: (success: Bool, errorString: String?) -> Void) {
         
         let url = urlFromComponents(scheme: Constants.Scheme, host: Constants.Host, path: Constants.Path, withPathExtension: Methods.Session, parameters: nil)
         
@@ -61,7 +62,17 @@ class UdacityClient: Networking {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let bodyDict: [String: AnyObject] = [JSONBodyKeys.Udacity: [JSONBodyKeys.Username: username, JSONBodyKeys.Password: password]]
+        var bodyDict: [String:AnyObject] = [:]
+        
+        if let username = username, let password = password {
+            bodyDict = [JSONBodyKeys.Udacity: [JSONBodyKeys.Username: username, JSONBodyKeys.Password: password]]
+        } else if let token = FBSDKAccessToken.currentAccessToken().tokenString {
+            bodyDict = ["facebook_mobile": ["access_token": token]]
+        } else {
+            let errorString = "There was an error creating the body for get session ID"
+            print(errorString)
+            completionHandlerForSession(success: false, errorString: errorString)
+        }
         
         let jsonBody: NSData
         do {
@@ -149,15 +160,58 @@ class UdacityClient: Networking {
                 self.firstName = firstName
                 self.lastName = lastName
                 completionHandlerForFetchUserData(success: true, errorString: nil)
-
             }
         }
     }
     
-    func logout() {
-        sessionID = ""
-        accountKey = ""
-        firstName = ""
-        lastName = ""
+    func logout(completionHandlerForLogout: (success: Bool, errorString: String?) -> Bool) {
+        // MARK: Clear Model
+        sessionID = nil
+        accountKey = nil
+        firstName = nil
+        lastName = nil
+        
+        // MARK: Delete Session ID with Udacity Server
+        let url = urlFromComponents(scheme: Constants.Scheme, host: Constants.Host, path: Constants.Path, withPathExtension: Methods.Session, parameters: nil)
+        
+        let request = NSMutableURLRequest(URL: url)
+        request.HTTPMethod = "DELETE"
+
+        var xsrfCookie: NSHTTPCookie? = nil
+        let sharedCookieStorage = NSHTTPCookieStorage.sharedHTTPCookieStorage()
+        for cookie in sharedCookieStorage.cookies! {
+            if cookie.name == "XSRF-TOKEN" { xsrfCookie = cookie }
+            break
+        }
+        if let xsrfCookie = xsrfCookie {
+            request.setValue(xsrfCookie.value, forHTTPHeaderField: "X-XSRF-TOKEN")
+        }
+        
+        taskForHTTPMethod(request) { (result, error) in
+            guard error == nil else {
+                completionHandlerForLogout(success: false, errorString: error?.localizedDescription)
+                return
+            }
+            
+            let data = result.subdataWithRange(NSMakeRange(5, (result.length) - 5))
+            
+            self.deserializeJSONWithCompletionHandler(data) { (data, error) in
+                guard error == nil else {
+                    print("There was an error with deserializing the JSON")
+                    completionHandlerForLogout(success: false, errorString: error?.localizedDescription)
+                    return
+                }
+                
+                guard let session = data?["session"] as? [String: AnyObject],
+                    let _ = session["id"] as? String,
+                    let _ = session["expiration"] as? String else {
+                        let errorString = "There was an error logging out: session/id/expiration keys."
+                        print(errorString)
+                        completionHandlerForLogout(success: false, errorString: errorString)
+                        return
+                }
+                completionHandlerForLogout(success: true, errorString: nil)
+            }
+        }
     }
 }

@@ -42,7 +42,7 @@ extension Networking {
         if let parameters = parameters {
             for (key, value) in parameters {
                 let queryItem = NSURLQueryItem(name: key, value: "\(value)")
-                components.queryItems!.append(queryItem)
+                components.queryItems?.append(queryItem)
             }
         }
         

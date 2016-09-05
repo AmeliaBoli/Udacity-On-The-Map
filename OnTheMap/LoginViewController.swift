@@ -7,8 +7,10 @@
 //
 
 import UIKit
+import FBSDKCoreKit
+import FBSDKLoginKit
 
-class LoginViewController: UIViewController, UITextFieldDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonDelegate {
     
     @IBOutlet weak var usernameField: UITextField!
     @IBOutlet weak var passwordField: UITextField!
@@ -16,17 +18,23 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var maskingView: UIView!
     
     let application = UIApplication.sharedApplication()
-
+    
+    let purpleView = UIView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-    }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        // Add Facebook Login Button
+        let loginButton = FBSDKLoginButton()
+        loginButton.delegate = self
+        
+        view.addSubview(loginButton)
+        loginButton.translatesAutoresizingMaskIntoConstraints = false
+
+        loginButton.bottomAnchor.constraintEqualToAnchor(view.layoutMarginsGuide.bottomAnchor, constant: -20).active = true
+        loginButton.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor).active = true
     }
-    
+        
     @IBAction func login(sender: UIButton?) {
         // Get session ID from Udacity
         guard let username = usernameField.text,
@@ -37,11 +45,26 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 return
         }
         
+        getSessionID(username, password: password)
+    }
+    
+    func getSessionID(username: String?, password: String?) {
+        var usernameForSession: String? = nil
+        var passwordForSession: String? = nil
         
+        if let username = username, password = password {
+            usernameForSession = username
+            passwordForSession = password
+        } else if FBSDKAccessToken.currentAccessToken() == nil {
+            print("There was a problem with parameters to get a session ID")
+            errorMessageLabel.text = "It looks like you either need to login with a Udacity account or a Facebook account"
+        }
+
         let udacitySession = UdacityClient.sharedInstance()
         
         maskingView.hidden = false
-        udacitySession.getSessionID(username, password: password) { (success, error) in
+        
+        udacitySession.getSessionID(usernameForSession, password: passwordForSession) { (success, error) in
             
             self.maskingView.hidden = true
             
@@ -57,7 +80,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             dispatch_async(dispatch_get_main_queue()) {
                 self.performSegueWithIdentifier("loggedin", sender: self)
             }
-          }
+        }
+
     }
     
     @IBAction func showUdacityPage(sender: UIButton) {
@@ -69,6 +93,21 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             return
         }
         UIApplication.sharedApplication().openURL(url)
+    }
+    
+    // MARK: Facebook Login/out Management
+    func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
+        
+        if error != nil {
+            print(error.localizedDescription)
+            errorMessageLabel.text = "There was a problem logging into Facebook"
+            return
+        }
+        getSessionID(nil, password: nil)
+    }
+    
+    func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
+        
     }
     
     // MARK: Text Field and Keyboard Management
@@ -97,4 +136,5 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         maskingView.hidden = true
     }
 }
+
 

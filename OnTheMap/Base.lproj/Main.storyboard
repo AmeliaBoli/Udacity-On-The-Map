@@ -89,17 +89,6 @@
                                     <action selector="showUdacityPage:" destination="BYZ-38-t0r" eventType="touchUpInside" id="RVP-CC-m15"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jzO-Hy-89J">
-                                <rect key="frame" x="40" y="540" width="520" height="40"/>
-                                <color key="backgroundColor" red="0.22352941179999999" green="0.33333333329999998" blue="0.59607843140000005" alpha="1" colorSpace="calibratedRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="40" id="PYf-VV-l3b"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <state key="normal" title="Sign in with Facebook">
-                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                </state>
-                            </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2SC-H8-vE7">
                                 <rect key="frame" x="40" y="431" width="520" height="0.0"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
@@ -114,8 +103,6 @@
                         <color key="backgroundColor" red="0.28639742732048035" green="0.46226644515991211" blue="0.65129232406616211" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstAttribute="bottomMargin" secondItem="Zpr-9w-Mnd" secondAttribute="bottom" id="2k6-Pb-YRQ"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="jzO-Hy-89J" secondAttribute="trailing" constant="20" id="3Dt-aK-VWT"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="jzO-Hy-89J" secondAttribute="bottom" constant="20" id="5QO-0O-Ujr"/>
                             <constraint firstAttribute="trailingMargin" secondItem="gca-pT-b9p" secondAttribute="trailing" constant="20" id="6Bq-D0-B8P"/>
                             <constraint firstItem="gca-pT-b9p" firstAttribute="top" secondItem="eVr-Gs-09d" secondAttribute="bottom" constant="40" id="Ph6-3r-k8w"/>
                             <constraint firstItem="2SC-H8-vE7" firstAttribute="top" secondItem="7Ef-AJ-HSC" secondAttribute="bottom" constant="8" id="U74-zQ-BKv"/>
@@ -127,7 +114,6 @@
                             <constraint firstAttribute="trailingMargin" secondItem="2SC-H8-vE7" secondAttribute="trailing" constant="20" id="eUb-eU-VxH"/>
                             <constraint firstAttribute="trailing" secondItem="Zpr-9w-Mnd" secondAttribute="trailing" id="hSq-SV-2y8"/>
                             <constraint firstItem="7Ef-AJ-HSC" firstAttribute="top" secondItem="Zpr-9w-Mnd" secondAttribute="bottom" constant="25" id="hWl-av-AMk"/>
-                            <constraint firstItem="jzO-Hy-89J" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="20" id="hWv-dP-v6J"/>
                             <constraint firstItem="7Ef-AJ-HSC" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="hm8-H1-bSz"/>
                             <constraint firstItem="2SC-H8-vE7" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="20" id="jgW-1a-8as"/>
                             <constraint firstItem="gca-pT-b9p" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="20" id="sC3-dq-Vx4"/>
@@ -305,7 +291,7 @@
                             </barButtonItem>
                             <barButtonItem image="pin" id="P5N-26-Csw">
                                 <connections>
-                                    <segue destination="2VB-Y6-hUk" kind="presentation" id="5qS-iB-Iyp"/>
+                                    <action selector="createNewPin:" destination="r3m-kR-x4A" id="im9-wK-Qfp"/>
                                 </connections>
                             </barButtonItem>
                         </rightBarButtonItems>
@@ -323,7 +309,7 @@
         <!--Create Pin View Controller-->
         <scene sceneID="Ox1-EY-vBG">
             <objects>
-                <viewController id="2VB-Y6-hUk" customClass="CreatePinViewController" customModule="OnTheMap" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="createPin" id="2VB-Y6-hUk" customClass="CreatePinViewController" customModule="OnTheMap" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="dwe-z3-3Pw"/>
                         <viewControllerLayoutGuide type="bottom" id="HSz-N2-Lye"/>
@@ -612,7 +598,4 @@
         <image name="map" width="32" height="32"/>
         <image name="pin" width="32" height="32"/>
     </resources>
-    <inferredMetricsTieBreakers>
-        <segue reference="i7V-oe-foL"/>
-    </inferredMetricsTieBreakers>
 </document>

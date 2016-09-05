@@ -19,7 +19,11 @@
 		AE8679011D6BD0EF00E76B48 /* CreatePinViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8679001D6BD0EF00E76B48 /* CreatePinViewController.swift */; };
 		AE8FB2021D7503B6008A95F6 /* StringExtensionForURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8FB2011D7503B6008A95F6 /* StringExtensionForURL.swift */; };
 		AEBB0FA41D762A6D004AB94C /* NetworkingProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBB0FA31D762A6D004AB94C /* NetworkingProtocol.swift */; };
+		AEE36F951D78C5A100B13690 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE36F941D78C5A100B13690 /* FBSDKCoreKit.framework */; };
+		AEE36F971D78C5B800B13690 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE36F961D78C5B800B13690 /* FBSDKLoginKit.framework */; };
+		AEE36F991D78C5C300B13690 /* FBSDKShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE36F981D78C5C300B13690 /* FBSDKShareKit.framework */; };
 		AEE442201D6D10920039EB5A /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4421F1D6D10920039EB5A /* TableViewController.swift */; };
+		AEF324F31D7DDCFA00BEB829 /* CreatePin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF324F21D7DDCFA00BEB829 /* CreatePin.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,7 +41,11 @@
 		AE8679001D6BD0EF00E76B48 /* CreatePinViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreatePinViewController.swift; sourceTree = "<group>"; };
 		AE8FB2011D7503B6008A95F6 /* StringExtensionForURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensionForURL.swift; sourceTree = "<group>"; };
 		AEBB0FA31D762A6D004AB94C /* NetworkingProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkingProtocol.swift; sourceTree = "<group>"; };
+		AEE36F941D78C5A100B13690 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../../../Documents/FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
+		AEE36F961D78C5B800B13690 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ../../../../Documents/FacebookSDK/FBSDKLoginKit.framework; sourceTree = "<group>"; };
+		AEE36F981D78C5C300B13690 /* FBSDKShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKShareKit.framework; path = ../../../../Documents/FacebookSDK/FBSDKShareKit.framework; sourceTree = "<group>"; };
 		AEE4421F1D6D10920039EB5A /* TableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
+		AEF324F21D7DDCFA00BEB829 /* CreatePin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreatePin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +53,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AEE36F971D78C5B800B13690 /* FBSDKLoginKit.framework in Frameworks */,
+				AEE36F951D78C5A100B13690 /* FBSDKCoreKit.framework in Frameworks */,
+				AEE36F991D78C5C300B13690 /* FBSDKShareKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				AE8678C31D6B770400E76B48 /* AppDelegate.swift */,
+				AEE36F931D78C56100B13690 /* Frameworks */,
 				AE8678D51D6B799700E76B48 /* Controllers */,
 				AE8678D81D6B79C200E76B48 /* Model */,
 				AE8678DB1D6B7DB000E76B48 /* Clients */,
@@ -89,6 +101,7 @@
 				AE8678DC1D6B96D200E76B48 /* MapViewController.swift */,
 				AEE4421F1D6D10920039EB5A /* TableViewController.swift */,
 				AE8679001D6BD0EF00E76B48 /* CreatePinViewController.swift */,
+				AEF324F21D7DDCFA00BEB829 /* CreatePin.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -110,6 +123,16 @@
 				AE8FB2011D7503B6008A95F6 /* StringExtensionForURL.swift */,
 			);
 			name = Clients;
+			sourceTree = "<group>";
+		};
+		AEE36F931D78C56100B13690 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AEE36F981D78C5C300B13690 /* FBSDKShareKit.framework */,
+				AEE36F961D78C5B800B13690 /* FBSDKLoginKit.framework */,
+				AEE36F941D78C5A100B13690 /* FBSDKCoreKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -194,6 +217,7 @@
 				AE8FB2021D7503B6008A95F6 /* StringExtensionForURL.swift in Sources */,
 				AE8678D71D6B79B500E76B48 /* Constants.swift in Sources */,
 				AE8679011D6BD0EF00E76B48 /* CreatePinViewController.swift in Sources */,
+				AEF324F31D7DDCFA00BEB829 /* CreatePin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,6 +332,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = " ~/Documents/FacebookSDK";
 				INFOPLIST_FILE = OnTheMap/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AmeliaBoli.OnTheMap;
@@ -322,6 +347,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = " ~/Documents/FacebookSDK";
 				INFOPLIST_FILE = OnTheMap/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.AmeliaBoli.OnTheMap;

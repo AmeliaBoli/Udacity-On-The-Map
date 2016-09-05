@@ -8,8 +8,9 @@
 
 import UIKit
 import MapKit
+import FBSDKLoginKit
 
-class MapViewController: UIViewController, MKMapViewDelegate {
+class MapViewController: UIViewController, MKMapViewDelegate, CreatePin {
 
     @IBOutlet weak var mapView: MKMapView!
     
@@ -19,20 +20,6 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadMap(nil)
-        
-        // Do any additional setup after loading the view.
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(true)
-        
-        // 1. Get info from Parse
-        
-            }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     @IBAction func loadMap(sender: UIBarButtonItem?) {
@@ -154,10 +141,53 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "unwindToLogout" {
-            let udacitySession = UdacityClient.sharedInstance()
-            udacitySession.logout()
+    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
+        if identifier == "unwindToLogout" {
+            
+            if FBSDKAccessToken.currentAccessToken() != nil {
+                let loginManager = FBSDKLoginManager()
+                loginManager.logOut()
+                
+                if FBSDKAccessToken.currentAccessToken() == nil {
+                    return true
+                } else {
+                    return false
+                }
+            } else {
+                let udacitySession = UdacityClient.sharedInstance()
+                udacitySession.logout() { (success, error) in
+                    if error != nil {
+                        print(error)
+                        return false
+                    } else if success == false {
+                        print("There is no error with logging out but it failed")
+                        return false
+                    } else {
+                        return true
+                    }
+                }
+                parseSession.logout()
+            }
         }
+        return true
+    }
+    
+    @IBAction func createNewPin(sender: UIBarButtonItem) {
+        checkForExistingLocation()
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+//        if segue.identifier == "unwindToLogout" {
+//            
+//            if FBSDKAccessToken.currentAccessToken() != nil {
+//                let loginManager = FBSDKLoginManager()
+//                loginManager.logOut()
+//            } else {
+//                let udacitySession = UdacityClient.sharedInstance()
+//                udacitySession.logout()
+//            }
+//        }
+//    }
     }
 }
+
