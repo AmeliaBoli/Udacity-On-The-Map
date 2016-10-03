@@ -26,42 +26,42 @@ extension Networking {
             return nil
         }
     }
-    
+
     func urlFromComponents(scheme scheme: String, host: String, path: String?, withPathExtension: String?, parameters: [String:AnyObject]?) -> NSURL {
-        
+
         let components = NSURLComponents()
         components.scheme = scheme
         components.host = host
-        
+
         if let path = path {
             components.path = path + (withPathExtension ?? "")
         }
-        
+
         components.queryItems = [NSURLQueryItem]()
-        
+
         if let parameters = parameters {
             for (key, value) in parameters {
                 let queryItem = NSURLQueryItem(name: key, value: "\(value)")
                 components.queryItems?.append(queryItem)
             }
         }
-        
+
         guard let url = components.URL else {
             print("There was a problem creating the URL")
             return NSURL()
         }
-        
+
         return url
     }
 
     func taskForHTTPMethod(request: NSURLRequest, completionHandlerForMethod: (result: NSData!, error: NSError?) -> Void) -> NSURLSessionDataTask {
-        
+
         let task = NSURLSession.sharedSession().dataTaskWithRequest(request) { (data, response, error) in
-            
+
             self.manageNetworkIndicator(false)
-            
+
             let domain = "taskForHTTPMethod"
-            
+
             /* GUARD: Was there an error? */
             guard (error == nil) else {
                 var errorString = "There was an error with your request: \(error)"
@@ -71,41 +71,41 @@ extension Networking {
                 self.sendError(errorString, domain: domain, completionHandlerForSendError: completionHandlerForMethod)
                 return
             }
-            
+
             /* GUARD: Did we get a successful 2XX response? */
             guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode else {
                 self.sendError("There seems to be no status code", domain: domain, completionHandlerForSendError: completionHandlerForMethod)
                 return
             }
-            
+
             guard statusCode >= 200 && statusCode <= 299 else {
                 var errorString = "Your request returned a status code other than 2xx!: \(statusCode)"
-                
+
                 if statusCode == 403 {
                     errorString = "We couldn't log you in. Your username or password seem incorrect."
                 }
-                
+
                 self.sendError(errorString, domain: domain, completionHandlerForSendError: completionHandlerForMethod)
                 return
             }
-            
+
             /* GUARD: Was there any data returned? */
             guard let data = data else {
                 self.sendError("No data was returned by the request!", domain: domain, completionHandlerForSendError: completionHandlerForMethod)
                 return
             }
-            
+
             completionHandlerForMethod(result: data, error: nil)
         }
-        
+
         manageNetworkIndicator(true)
         task.resume()
         return task
     }
-    
+
     func deserializeJSONWithCompletionHandler(data: NSData, completionHandlerForDeserializeJSON: (result: AnyObject!, error: NSError?) -> Void) {
         var parsedData: AnyObject?
-        
+
         do {
             parsedData = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
         } catch {
@@ -113,7 +113,7 @@ extension Networking {
         }
         completionHandlerForDeserializeJSON(result: parsedData, error: nil)
     }
-    
+
     // MARK: Extension Helpers
     func sendError(error: String, domain: String, completionHandlerForSendError: (result: NSData!, error: NSError?) -> Void) {
         print(error)
@@ -121,10 +121,10 @@ extension Networking {
         let nsError = NSError(domain: domain, code: 1, userInfo: userInfo)
         completionHandlerForSendError(result: nil, error: nsError)
     }
-    
+
     func manageNetworkIndicator(turnOn: Bool) {
         let application = UIApplication.sharedApplication()
-        
+
         if turnOn && !application.networkActivityIndicatorVisible {
             application.networkActivityIndicatorVisible = true
         } else if !turnOn && application.networkActivityIndicatorVisible {

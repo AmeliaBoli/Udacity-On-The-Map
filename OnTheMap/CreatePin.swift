@@ -17,12 +17,12 @@ protocol CreatePin {
 extension CreatePin where Self: UIViewController {
     func checkForExistingLocation() {
         let parseSession = ParseClient.sharedInstance()
-        
+
         if parseSession.objectID != nil {
             alertUserToExistingLocation()
             return
         }
-        
+
         ParseClient.sharedInstance().fetchLocationForUser() { (success, locationExists, error) in
             if error != nil {
                 print(error)
@@ -41,19 +41,19 @@ extension CreatePin where Self: UIViewController {
             }
         }
     }
-    
+
     func alertUserToExistingLocation() {
         let alert = UIAlertController(title: "You Already Exist!", message: "It looks like you already have a location posted. Would you like to update it?", preferredStyle: .Alert)
-        
+
         let yesAction = UIAlertAction(title: "Yes", style: .Default, handler: { alert in self.segueToCreatePinVC() })
         let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: { alert in return false })
-        
+
         alert.addAction(yesAction)
         alert.addAction(cancel)
-        
+
         self.presentViewController(alert, animated: true, completion: nil)
     }
-    
+
     func segueToCreatePinVC() {
         let createPinVC = self.storyboard?.instantiateViewControllerWithIdentifier("createPin") as! CreatePinViewController
         self.presentViewController(createPinVC, animated: true, completion: nil)

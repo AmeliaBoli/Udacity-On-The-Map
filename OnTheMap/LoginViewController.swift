@@ -11,39 +11,39 @@ import FBSDKCoreKit
 import FBSDKLoginKit
 
 class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonDelegate, AlertController {
-    
+
     @IBOutlet weak var usernameField: UITextField!
     @IBOutlet weak var passwordField: UITextField!
     @IBOutlet weak var maskingView: UIView!
-    
+
     let application = UIApplication.sharedApplication()
-    
+
     let purpleView = UIView()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Add Facebook Login Button
         let loginButton = FBSDKLoginButton()
         loginButton.delegate = self
-        
+
         view.addSubview(loginButton)
         loginButton.translatesAutoresizingMaskIntoConstraints = false
 
         loginButton.bottomAnchor.constraintEqualToAnchor(view.layoutMarginsGuide.bottomAnchor, constant: -20).active = true
         loginButton.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor).active = true
-        
+
         view.bringSubviewToFront(maskingView)
-        
+
         if FBSDKAccessToken.currentAccessToken() != nil {
             FBSDKLoginManager().logOut()
         }
     }
-        
+
     @IBAction func login(sender: UIButton?) {
         usernameField.resignFirstResponder()
         passwordField.resignFirstResponder()
-        
+
         guard let username = usernameField.text,
             let password = passwordField.text where !username.isEmpty && !password.isEmpty else {
                 let errorString = "There seems to be no username or password"
@@ -53,11 +53,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         }
         getSessionID(username, password: password)
     }
-    
+
     func getSessionID(username: String?, password: String?) {
         var usernameForSession: String? = nil
         var passwordForSession: String? = nil
-        
+
         if let username = username, password = password {
             usernameForSession = username
             passwordForSession = password
@@ -67,11 +67,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         }
 
         let udacitySession = UdacityClient.sharedInstance()
-        
+
         maskingView.hidden = false
-        
+
         udacitySession.getSessionID(usernameForSession, password: passwordForSession) { (success, error) in
-            
+
             guard error == nil && success == true else {
                 print("error with getSesssionID: \(error)")
                 dispatch_async(dispatch_get_main_queue()) {
@@ -80,14 +80,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
                 }
                 return
             }
-            
+
             dispatch_async(dispatch_get_main_queue()) {
                 self.maskingView.hidden = true
                 self.performSegueWithIdentifier("loggedin", sender: self)
             }
         }
     }
-    
+
     @IBAction func showUdacityPage(sender: UIButton) {
         let escapedURLString = ("https://www.udacity.com/account/auth#!/signup")
         guard let url = NSURL(string: escapedURLString) else {
@@ -98,10 +98,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         }
         UIApplication.sharedApplication().openURL(url)
     }
-    
+
     // MARK: Facebook Login/out Management
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
-        
+
         if error != nil {
             print(error.localizedDescription)
             createAlertControllerWithNoActions(nil, message: "There was a problem logging into Facebook")
@@ -109,11 +109,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         }
         getSessionID(nil, password: nil)
     }
-    
+
     // Required for FBSDKLoginButtonDelegate
     func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
     }
-    
+
     // MARK: Text Field and Keyboard Management
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         if textField == usernameField {
@@ -125,11 +125,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         }
         return true
     }
-    
+
     @IBAction func dismissKeyboard(sender: UITapGestureRecognizer) {
         view.endEditing(true)
     }
-    
+
     @IBAction func prepareForUnwindToLogout(segue: UIStoryboardSegue) {
         usernameField.text = ""
         passwordField.text = ""

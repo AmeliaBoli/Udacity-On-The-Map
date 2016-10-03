@@ -22,10 +22,10 @@ extension AlertController where Self: UIViewController {
 
     func createAlertControllerWithNoActions(title: String?, message: String?) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-        
+
         let cancel = UIAlertAction(title: "Ok", style: .Cancel, handler: nil)
         alert.addAction(cancel)
-        
+
         self.presentViewController(alert, animated: true, completion: nil)
     }
 }
