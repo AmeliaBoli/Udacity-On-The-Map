@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TableViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class TableViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, CreatePin, AlertController {
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -24,14 +24,9 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
         refreshControl.addTarget(self, action: #selector(reloadStudents), forControlEvents: .ValueChanged)
         tableView.addSubview(refreshControl)
-        // Do any additional setup after loading the view.
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
+    // MARK: Table Management
     @IBAction func reloadStudents() {
         parseSession.getLast100UserLocations() { (success, error) in
             guard error == nil && success == true else {
@@ -76,49 +71,22 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         let url: NSURL
         do {
             url = try urlString.createValidURL()
-        } catch String.UrlErrors.invalidString {
-            print("invalidString")
-            //postErrorLabel.text = "I can't seem to make a valid URL from what was inputted"
-            return
-        } catch String.UrlErrors.invalidComponents {
-            print("invalidComponents")
-            //postErrorLabel.text = "I can't seem to make a valid URL from what was inputted"
-            return
-        } catch String.UrlErrors.noDataDetector {
-            print("noDataDetector")
-            //postErrorLabel.text = "There was an internal error"
-            return
-        } catch String.UrlErrors.noHost {
-            print("noHost")
-            //postErrorLabel.text = "There seems to be no host- https://"
-            return
-        } catch String.UrlErrors.wrongNumberOfLinks {
-            print("wrongNumberOfLinks")
-            //postErrorLabel.text = "You might be missing the domain- .com"
-            return
-        } catch String.UrlErrors.invalidCharacter {
-            print("invalidCharacter")
-            // FIXME: Have the actual bad character pass through to here and add it to the error message to the user
-            //postErrorLabel.text = "There was a character in the URL that is not allowed"
-            return
         } catch {
-            print("some other error")
-            //postErrorLabel.text = "Hmm...something went wrong"
+            showAlertOnMain("That link is not valid")
             return
         }
         
         UIApplication.sharedApplication().openURL(url)
     }
     
-    
-    
-    @IBAction func prepareForUnwind(segue: UIStoryboardSegue) {
-        
+    // MARK: Navigation Management
+    @IBAction func createNewPin(sender: UIBarButtonItem) {
+        checkForExistingLocation()
     }
     
-//    override func shouldPerformSegueWithIdentifier(identifier: String, sender: AnyObject?) -> Bool {
-//        if segue.
-//    }
+    // Required to exit from CreatePinViewController
+    @IBAction func prepareForUnwind(segue: UIStoryboardSegue) {
+    }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "unwindToLogout" {
@@ -132,15 +100,4 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
             }
         }
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }

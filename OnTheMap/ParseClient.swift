@@ -74,8 +74,6 @@ class ParseClient: Networking {
         var mediaURL: String
         
         // MARK: Initializers
-        
-        // construct a TMDBMovie from a dictionary
         init(dictionary: [String:AnyObject]) {
             guard let firstName = dictionary["firstName"] as? String,
                 let lastName = dictionary["lastName"] as? String,
@@ -238,8 +236,8 @@ class ParseClient: Networking {
                     return
                 }
                 
-                guard let creationDate = result?["createdAt"],
-                    let objectID = result?["objectId"] else {
+                guard let _ = result?["createdAt"],
+                    let _ = result?["objectId"] else {
                         let errorString = "There is an error grabbing the creation date or object ID"
                         print(errorString)
                          let nsError = NSError(domain: "postLocation", code: 1, userInfo: nil)
@@ -296,7 +294,7 @@ class ParseClient: Networking {
                     return
                 }
                 
-                guard let updatedAt = result?["updatedAt"] else {
+                guard let _ = result?["updatedAt"] else {
                         let errorString = "There is an error grabbing the updated date"
                         print(errorString)
                         let nsError = NSError(domain: "updateLocation", code: 1, userInfo: nil)

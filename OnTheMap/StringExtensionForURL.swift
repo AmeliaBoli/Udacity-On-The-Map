@@ -15,7 +15,7 @@ extension String {
         case noDataDetector
         case noHost
         case wrongNumberOfLinks
-        case invalidCharacter
+        case invalidCharacter(Character)
     }
     
     func createValidURL() throws -> NSURL {
@@ -73,7 +73,7 @@ extension String {
         
         for character in hostString.utf16 {
             guard characterSet.characterIsMember(character) else {
-                throw UrlErrors.invalidCharacter
+                throw UrlErrors.invalidCharacter(Character(UnicodeScalar(character)))
             }
         }
         

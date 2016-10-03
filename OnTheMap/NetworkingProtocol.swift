@@ -12,8 +12,8 @@ protocol Networking {
     func substituteKeyInMethod(method: String, key: String, value: String) -> String?
     func urlFromComponents(scheme scheme: String, host: String, path: String?, withPathExtension: String?, parameters: [String:AnyObject]?) -> NSURL
     func taskForHTTPMethod(request: NSURLRequest, completionHandlerForMethod: (result: NSData!, error: NSError?) -> Void) -> NSURLSessionDataTask
-     func deserializeJSONWithCompletionHandler(data: NSData, completionHandlerForDeserializeJSON: (result: AnyObject!, error: NSError?) -> Void)
-     func sendError(error: String, domain: String, completionHandlerForSendError: (result: NSData!, error: NSError?) -> Void)
+    func deserializeJSONWithCompletionHandler(data: NSData, completionHandlerForDeserializeJSON: (result: AnyObject!, error: NSError?) -> Void)
+    func sendError(error: String, domain: String, completionHandlerForSendError: (result: NSData!, error: NSError?) -> Void)
     func manageNetworkIndicator(turnOn: Bool)
 }
 
@@ -65,7 +65,7 @@ extension Networking {
             /* GUARD: Was there an error? */
             guard (error == nil) else {
                 var errorString = "There was an error with your request: \(error)"
-                if error?.code == -1001 {
+                if error?.code == -1009 {
                     errorString = "We couldn't log you in. There seems to be a problem with your network connection."
                 }
                 self.sendError(errorString, domain: domain, completionHandlerForSendError: completionHandlerForMethod)
@@ -98,7 +98,6 @@ extension Networking {
             completionHandlerForMethod(result: data, error: nil)
         }
         
-        /* 7. Start the request */
         manageNetworkIndicator(true)
         task.resume()
         return task

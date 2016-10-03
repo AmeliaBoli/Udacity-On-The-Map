@@ -28,7 +28,7 @@ extension CreatePin where Self: UIViewController {
                 print(error)
                 return
             } else if success == false {
-                print("There is no error with retrieving previous locations")
+                print("There is an error with retrieving previous locations")
                 return
             } else if let locationExists = locationExists {
                 if locationExists {

@@ -9,7 +9,7 @@
 import UIKit
 import MapKit
 
-class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegate {
+class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegate, AlertController {
 
     @IBOutlet weak var locationTextField: UITextField!
     @IBOutlet weak var mediaURLTextField: UITextField!
@@ -23,8 +23,6 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var maskingView: UIView!
-    @IBOutlet weak var geocodeFailedLabel: UILabel!
-    @IBOutlet weak var postErrorLabel: UILabel!
 
     var latitude: Double?
     var longitude: Double?
@@ -42,6 +40,10 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
     @IBAction func findLocation(sender: UIButton?) {        
         locationTextField.resignFirstResponder()
         
+        if locationTextField.text == "" {
+            createAlertControllerWithNoActions(nil, message: "No location was provided.")
+        }
+        
         activityIndicator.startAnimating()
         maskingView.hidden = false
         
@@ -49,12 +51,12 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
             guard error == nil else {
                 print("There was an error with geocoding the location: \(error?.localizedDescription)")
                 
-                self.geocodeFailedLabel.hidden = false
                 self.locationTextField.text = ""
                 
                 dispatch_async(dispatch_get_main_queue()) {
                     self.activityIndicator.stopAnimating()
                     self.maskingView.hidden = true
+                    self.createAlertControllerWithNoActions(nil, message: "There was an error finding your location")
                 }
                 
                 return
@@ -62,6 +64,12 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
             
             guard let placemarks = placemarks else {
                 print("there is an error placemark")
+                
+                dispatch_async(dispatch_get_main_queue()) {
+                    self.activityIndicator.stopAnimating()
+                    self.maskingView.hidden = true
+                }
+
                 return
             }
             
@@ -121,9 +129,8 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
     @IBAction func submitLocation(sender: UIButton?) {
         mediaURLTextField.resignFirstResponder()
         
-        // Grab user data
-        
-        guard let urlString = self.mediaURLTextField.text else {
+        guard let urlString = self.mediaURLTextField.text where !urlString.isEmpty else {
+            createAlertControllerWithNoActions(nil, message: "There was no webpage listed.")
             return
         }
         
@@ -132,41 +139,47 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
             url = try urlString.createValidURL()
         } catch String.UrlErrors.invalidString {
             print("invalidString")
-            postErrorLabel.text = "I can't seem to make a valid URL from what was inputted"
+            createAlertControllerWithNoActions(nil, message: "I can't seem to make a valid URL from what was inputted")
             return
         } catch String.UrlErrors.invalidComponents {
             print("invalidComponents")
-            postErrorLabel.text = "I can't seem to make a valid URL from what was inputted"
+            createAlertControllerWithNoActions(nil, message: "I can't seem to make a valid URL from what was inputted")
             return
         } catch String.UrlErrors.noDataDetector {
             print("noDataDetector")
-            postErrorLabel.text = "There was an internal error"
+            createAlertControllerWithNoActions(nil, message: "There was an internal error")
             return
         } catch String.UrlErrors.noHost {
             print("noHost")
-            postErrorLabel.text = "There seems to be no host- https://"
+            createAlertControllerWithNoActions(nil, message: "There seems to be no host- https://")
             return
         } catch String.UrlErrors.wrongNumberOfLinks {
             print("wrongNumberOfLinks")
-            postErrorLabel.text = "You might be missing the domain- .com"
+            showAlertOnMain("You might be missing the domain- .com")
             return
-        } catch String.UrlErrors.invalidCharacter {
+        } catch String.UrlErrors.invalidCharacter(let character) {
             print("invalidCharacter")
-            // FIXME: Have the actual bad character pass through to here and add it to the error message to the user
-            postErrorLabel.text = "There was a character in the URL that is not allowed"
+            createAlertControllerWithNoActions(nil, message: "There was a character in the URL that is not allowed: \(character)")
             return
         } catch {
             print("some other error")
-            postErrorLabel.text = "Hmm...something went wrong"
+            createAlertControllerWithNoActions(nil, message: "Hmm...something went wrong")
             return
         }
 
         let udacitySession = UdacityClient.sharedInstance()
         
+        activityIndicator.startAnimating()
+        maskingView.hidden = false
+        
         udacitySession.fetchUserData() { (success, error) in
             guard error == nil && success == true else {
                 print("there is an error fetchUserData")
                 
+                dispatch_async(dispatch_get_main_queue()) {
+                    self.activityIndicator.stopAnimating()
+                    self.maskingView.hidden = true
+                }
                 return
             }
             
@@ -174,16 +187,20 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
             
             if parseSession.objectID == nil {
                 
-                // FIXME: grab location description from placemark
                 parseSession.postLocation(self.locationTextField.text!, mediaURL: url.absoluteString, latitude: self.latitude!, longitude: self.longitude!) { (success, error) in
                     guard error == nil && success == true else {
                         print("There is an error with postLocation")
-                        self.geocodeFailedLabel.text = error?.localizedDescription
+                        dispatch_async(dispatch_get_main_queue()) {
+                            self.activityIndicator.stopAnimating()
+                            self.maskingView.hidden = true
+                            self.createAlertControllerWithNoActions(nil, message: error?.localizedDescription)
+                        }
                         return
                     }
                     
-                    
                     dispatch_async(dispatch_get_main_queue()) {
+                        self.activityIndicator.stopAnimating()
+                        self.maskingView.hidden = true
                         self.dismissViewControllerAnimated(true, completion: nil)
                     }
                 }
@@ -192,24 +209,22 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
                 parseSession.updateLocation(self.locationTextField.text!, mediaURL: url.absoluteString, latitude: self.latitude!, longitude: self.longitude!) { (sucess, error) in
                     guard error == nil && success == true else {
                         print("There is an error with updateLocation")
-                        self.geocodeFailedLabel.text = error?.localizedDescription
+                        dispatch_async(dispatch_get_main_queue()) {
+                            self.activityIndicator.stopAnimating()
+                            self.maskingView.hidden = true
+                            self.createAlertControllerWithNoActions(nil, message: error?.localizedDescription)
+                        }
                         return
                     }
                     
                     
                     dispatch_async(dispatch_get_main_queue()) {
+                        self.activityIndicator.stopAnimating()
+                        self.maskingView.hidden = true
                         self.dismissViewControllerAnimated(true, completion: nil)
                     }
                 }
             }
-        }
-    }
-    
-    func textFieldDidBeginEditing(textField: UITextField) {
-        if textField == locationTextField {
-            geocodeFailedLabel.hidden = true
-        } else if textField == mediaURLTextField {
-            postErrorLabel.text = ""
         }
     }
     
@@ -226,15 +241,4 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
     @IBAction func dismissKeyboard(sender: UITapGestureRecognizer) {
         view.endEditing(true)
     }
-    
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }

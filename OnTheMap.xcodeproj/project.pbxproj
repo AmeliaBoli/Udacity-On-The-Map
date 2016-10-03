@@ -12,7 +12,6 @@
 		AE8678C91D6B770400E76B48 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AE8678C71D6B770400E76B48 /* Main.storyboard */; };
 		AE8678CB1D6B770400E76B48 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE8678CA1D6B770400E76B48 /* Assets.xcassets */; };
 		AE8678CE1D6B770400E76B48 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AE8678CC1D6B770400E76B48 /* LaunchScreen.storyboard */; };
-		AE8678D71D6B79B500E76B48 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8678D61D6B79B500E76B48 /* Constants.swift */; };
 		AE8678DA1D6B7DA600E76B48 /* UdacityClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8678D91D6B7DA600E76B48 /* UdacityClient.swift */; };
 		AE8678DD1D6B96D200E76B48 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8678DC1D6B96D200E76B48 /* MapViewController.swift */; };
 		AE8678FF1D6BB61000E76B48 /* ParseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8678FE1D6BB61000E76B48 /* ParseClient.swift */; };
@@ -24,6 +23,7 @@
 		AEE36F991D78C5C300B13690 /* FBSDKShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE36F981D78C5C300B13690 /* FBSDKShareKit.framework */; };
 		AEE442201D6D10920039EB5A /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4421F1D6D10920039EB5A /* TableViewController.swift */; };
 		AEF324F31D7DDCFA00BEB829 /* CreatePin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF324F21D7DDCFA00BEB829 /* CreatePin.swift */; };
+		AEF324F51D7DF81E00BEB829 /* AlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF324F41D7DF81E00BEB829 /* AlertController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,7 +34,6 @@
 		AE8678CA1D6B770400E76B48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AE8678CD1D6B770400E76B48 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AE8678CF1D6B770400E76B48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AE8678D61D6B79B500E76B48 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		AE8678D91D6B7DA600E76B48 /* UdacityClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = UdacityClient.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		AE8678DC1D6B96D200E76B48 /* MapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		AE8678FE1D6BB61000E76B48 /* ParseClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ParseClient.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -46,6 +45,7 @@
 		AEE36F981D78C5C300B13690 /* FBSDKShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKShareKit.framework; path = ../../../../Documents/FacebookSDK/FBSDKShareKit.framework; sourceTree = "<group>"; };
 		AEE4421F1D6D10920039EB5A /* TableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
 		AEF324F21D7DDCFA00BEB829 /* CreatePin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreatePin.swift; sourceTree = "<group>"; };
+		AEF324F41D7DF81E00BEB829 /* AlertController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,14 +82,13 @@
 			isa = PBXGroup;
 			children = (
 				AE8678C31D6B770400E76B48 /* AppDelegate.swift */,
-				AEE36F931D78C56100B13690 /* Frameworks */,
 				AE8678D51D6B799700E76B48 /* Controllers */,
-				AE8678D81D6B79C200E76B48 /* Model */,
 				AE8678DB1D6B7DB000E76B48 /* Clients */,
 				AE8678C71D6B770400E76B48 /* Main.storyboard */,
 				AE8678CA1D6B770400E76B48 /* Assets.xcassets */,
 				AE8678CC1D6B770400E76B48 /* LaunchScreen.storyboard */,
 				AE8678CF1D6B770400E76B48 /* Info.plist */,
+				AEE36F931D78C56100B13690 /* Frameworks */,
 			);
 			path = OnTheMap;
 			sourceTree = "<group>";
@@ -102,16 +101,9 @@
 				AEE4421F1D6D10920039EB5A /* TableViewController.swift */,
 				AE8679001D6BD0EF00E76B48 /* CreatePinViewController.swift */,
 				AEF324F21D7DDCFA00BEB829 /* CreatePin.swift */,
+				AEF324F41D7DF81E00BEB829 /* AlertController.swift */,
 			);
 			name = Controllers;
-			sourceTree = "<group>";
-		};
-		AE8678D81D6B79C200E76B48 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				AE8678D61D6B79B500E76B48 /* Constants.swift */,
-			);
-			name = Model;
 			sourceTree = "<group>";
 		};
 		AE8678DB1D6B7DB000E76B48 /* Clients */ = {
@@ -211,11 +203,11 @@
 				AE8678DA1D6B7DA600E76B48 /* UdacityClient.swift in Sources */,
 				AE8678C61D6B770400E76B48 /* LoginViewController.swift in Sources */,
 				AEBB0FA41D762A6D004AB94C /* NetworkingProtocol.swift in Sources */,
+				AEF324F51D7DF81E00BEB829 /* AlertController.swift in Sources */,
 				AEE442201D6D10920039EB5A /* TableViewController.swift in Sources */,
 				AE8678C41D6B770400E76B48 /* AppDelegate.swift in Sources */,
 				AE8678DD1D6B96D200E76B48 /* MapViewController.swift in Sources */,
 				AE8FB2021D7503B6008A95F6 /* StringExtensionForURL.swift in Sources */,
-				AE8678D71D6B79B500E76B48 /* Constants.swift in Sources */,
 				AE8679011D6BD0EF00E76B48 /* CreatePinViewController.swift in Sources */,
 				AEF324F31D7DDCFA00BEB829 /* CreatePin.swift in Sources */,
 			);

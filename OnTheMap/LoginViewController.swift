@@ -10,11 +10,10 @@ import UIKit
 import FBSDKCoreKit
 import FBSDKLoginKit
 
-class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonDelegate, AlertController {
     
     @IBOutlet weak var usernameField: UITextField!
     @IBOutlet weak var passwordField: UITextField!
-    @IBOutlet weak var errorMessageLabel: UILabel!
     @IBOutlet weak var maskingView: UIView!
     
     let application = UIApplication.sharedApplication()
@@ -33,18 +32,25 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
 
         loginButton.bottomAnchor.constraintEqualToAnchor(view.layoutMarginsGuide.bottomAnchor, constant: -20).active = true
         loginButton.centerXAnchor.constraintEqualToAnchor(view.centerXAnchor).active = true
+        
+        view.bringSubviewToFront(maskingView)
+        
+        if FBSDKAccessToken.currentAccessToken() != nil {
+            FBSDKLoginManager().logOut()
+        }
     }
         
     @IBAction func login(sender: UIButton?) {
-        // Get session ID from Udacity
+        usernameField.resignFirstResponder()
+        passwordField.resignFirstResponder()
+        
         guard let username = usernameField.text,
             let password = passwordField.text where !username.isEmpty && !password.isEmpty else {
                 let errorString = "There seems to be no username or password"
                 print(errorString)
-                errorMessageLabel.text = errorString
+                createAlertControllerWithNoActions(nil, message: errorString)
                 return
         }
-        
         getSessionID(username, password: password)
     }
     
@@ -57,7 +63,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
             passwordForSession = password
         } else if FBSDKAccessToken.currentAccessToken() == nil {
             print("There was a problem with parameters to get a session ID")
-            errorMessageLabel.text = "It looks like you either need to login with a Udacity account or a Facebook account"
+            createAlertControllerWithNoActions(nil, message: "It looks like you either need to login with a Udacity account or a Facebook account")
         }
 
         let udacitySession = UdacityClient.sharedInstance()
@@ -66,22 +72,20 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         
         udacitySession.getSessionID(usernameForSession, password: passwordForSession) { (success, error) in
             
-            self.maskingView.hidden = true
-            
             guard error == nil && success == true else {
-                print("error with getSesssionID")
+                print("error with getSesssionID: \(error)")
                 dispatch_async(dispatch_get_main_queue()) {
                     self.maskingView.hidden = true
-                    self.errorMessageLabel.text = error!
+                    self.createAlertControllerWithNoActions(nil, message: error)
                 }
                 return
             }
             
             dispatch_async(dispatch_get_main_queue()) {
+                self.maskingView.hidden = true
                 self.performSegueWithIdentifier("loggedin", sender: self)
             }
         }
-
     }
     
     @IBAction func showUdacityPage(sender: UIButton) {
@@ -89,7 +93,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         guard let url = NSURL(string: escapedURLString) else {
             let errorString = "There was a problem with the Udacity sign in page"
             print(errorString)
-            errorMessageLabel.text = errorString
+            createAlertControllerWithNoActions(nil, message: errorString)
             return
         }
         UIApplication.sharedApplication().openURL(url)
@@ -100,14 +104,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         
         if error != nil {
             print(error.localizedDescription)
-            errorMessageLabel.text = "There was a problem logging into Facebook"
+            createAlertControllerWithNoActions(nil, message: "There was a problem logging into Facebook")
             return
         }
         getSessionID(nil, password: nil)
     }
     
+    // Required for FBSDKLoginButtonDelegate
     func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
-        
     }
     
     // MARK: Text Field and Keyboard Management
@@ -126,15 +130,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         view.endEditing(true)
     }
     
-    func textFieldDidBeginEditing(textField: UITextField) {
-        errorMessageLabel.text = ""
-    }
-    
     @IBAction func prepareForUnwindToLogout(segue: UIStoryboardSegue) {
         usernameField.text = ""
         passwordField.text = ""
         maskingView.hidden = true
     }
 }
-
-

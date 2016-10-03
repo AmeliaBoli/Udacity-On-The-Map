@@ -50,7 +50,6 @@ class UdacityClient: Networking {
     
     
     // MARK: Methods
-    
     func getSessionID(username: String?, password: String?, completionHandlerForSession: (success: Bool, errorString: String?) -> Void) {
         
         let url = urlFromComponents(scheme: Constants.Scheme, host: Constants.Host, path: Constants.Path, withPathExtension: Methods.Session, parameters: nil)
@@ -85,7 +84,13 @@ class UdacityClient: Networking {
         
         self.taskForHTTPMethod(request) { (result, error) in
             guard error == nil else {
-                completionHandlerForSession(success: false, errorString: error?.localizedDescription)
+                guard let error = error else {
+                    let errorString = "There is an internal problem: get session id error"
+                    print("errorString")
+                    completionHandlerForSession(success: false, errorString: errorString)
+                    return
+                }
+                completionHandlerForSession(success: false, errorString: error.localizedDescription)
                 return
             }
             
