@@ -18,6 +18,8 @@
 		AE8679011D6BD0EF00E76B48 /* CreatePinViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8679001D6BD0EF00E76B48 /* CreatePinViewController.swift */; };
 		AE8FB2021D7503B6008A95F6 /* StringExtensionForURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8FB2011D7503B6008A95F6 /* StringExtensionForURL.swift */; };
 		AEBB0FA41D762A6D004AB94C /* NetworkingProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBB0FA31D762A6D004AB94C /* NetworkingProtocol.swift */; };
+		AEC4F1191DA73A5B002A453B /* StudentLocationsArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC4F1181DA73A5B002A453B /* StudentLocationsArray.swift */; };
+		AEC4F11B1DA73AC7002A453B /* StudentLocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC4F11A1DA73AC7002A453B /* StudentLocationModel.swift */; };
 		AEE36F951D78C5A100B13690 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE36F941D78C5A100B13690 /* FBSDKCoreKit.framework */; };
 		AEE36F971D78C5B800B13690 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE36F961D78C5B800B13690 /* FBSDKLoginKit.framework */; };
 		AEE36F991D78C5C300B13690 /* FBSDKShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AEE36F981D78C5C300B13690 /* FBSDKShareKit.framework */; };
@@ -40,6 +42,8 @@
 		AE8679001D6BD0EF00E76B48 /* CreatePinViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreatePinViewController.swift; sourceTree = "<group>"; };
 		AE8FB2011D7503B6008A95F6 /* StringExtensionForURL.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringExtensionForURL.swift; sourceTree = "<group>"; };
 		AEBB0FA31D762A6D004AB94C /* NetworkingProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkingProtocol.swift; sourceTree = "<group>"; };
+		AEC4F1181DA73A5B002A453B /* StudentLocationsArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StudentLocationsArray.swift; sourceTree = "<group>"; };
+		AEC4F11A1DA73AC7002A453B /* StudentLocationModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StudentLocationModel.swift; sourceTree = "<group>"; };
 		AEE36F941D78C5A100B13690 /* FBSDKCoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKCoreKit.framework; path = ../../../../Documents/FacebookSDK/FBSDKCoreKit.framework; sourceTree = "<group>"; };
 		AEE36F961D78C5B800B13690 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ../../../../Documents/FacebookSDK/FBSDKLoginKit.framework; sourceTree = "<group>"; };
 		AEE36F981D78C5C300B13690 /* FBSDKShareKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = FBSDKShareKit.framework; path = ../../../../Documents/FacebookSDK/FBSDKShareKit.framework; sourceTree = "<group>"; };
@@ -83,6 +87,7 @@
 			children = (
 				AE8678C31D6B770400E76B48 /* AppDelegate.swift */,
 				AE8678D51D6B799700E76B48 /* Controllers */,
+				AEC4F11C1DA73B97002A453B /* Model */,
 				AE8678DB1D6B7DB000E76B48 /* Clients */,
 				AE8678C71D6B770400E76B48 /* Main.storyboard */,
 				AE8678CA1D6B770400E76B48 /* Assets.xcassets */,
@@ -115,6 +120,15 @@
 				AE8FB2011D7503B6008A95F6 /* StringExtensionForURL.swift */,
 			);
 			name = Clients;
+			sourceTree = "<group>";
+		};
+		AEC4F11C1DA73B97002A453B /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				AEC4F11A1DA73AC7002A453B /* StudentLocationModel.swift */,
+				AEC4F1181DA73A5B002A453B /* StudentLocationsArray.swift */,
+			);
+			name = Model;
 			sourceTree = "<group>";
 		};
 		AEE36F931D78C56100B13690 /* Frameworks */ = {
@@ -203,9 +217,11 @@
 				AE8678DA1D6B7DA600E76B48 /* UdacityClient.swift in Sources */,
 				AE8678C61D6B770400E76B48 /* LoginViewController.swift in Sources */,
 				AEBB0FA41D762A6D004AB94C /* NetworkingProtocol.swift in Sources */,
+				AEC4F1191DA73A5B002A453B /* StudentLocationsArray.swift in Sources */,
 				AEF324F51D7DF81E00BEB829 /* AlertController.swift in Sources */,
 				AEE442201D6D10920039EB5A /* TableViewController.swift in Sources */,
 				AE8678C41D6B770400E76B48 /* AppDelegate.swift in Sources */,
+				AEC4F11B1DA73AC7002A453B /* StudentLocationModel.swift in Sources */,
 				AE8678DD1D6B96D200E76B48 /* MapViewController.swift in Sources */,
 				AE8FB2021D7503B6008A95F6 /* StringExtensionForURL.swift in Sources */,
 				AE8679011D6BD0EF00E76B48 /* CreatePinViewController.swift in Sources */,

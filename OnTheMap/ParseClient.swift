@@ -63,53 +63,8 @@ class ParseClient: Networking {
         static let Longitude = "longitude"
     }
 
-    // MARK: Location Model
-    struct StudentInformation   {
-
-        // MARK: Properties
-        var firstName: String
-        var lastName: String
-        var latitude: Double
-        var longitude: Double
-        var mediaURL: String
-
-        // MARK: Initializers
-        init(dictionary: [String:AnyObject]) {
-            guard let firstName = dictionary["firstName"] as? String,
-                let lastName = dictionary["lastName"] as? String,
-                let latitude = dictionary["latitude"] as? Double,
-                let longitude = dictionary["longitude"] as? Double,
-                let mediaURL = dictionary["mediaURL"] as? String else {
-                    print("There was an error extracting the data to create a Student")
-                    self.firstName = ""
-                    self.lastName = ""
-                    self.latitude = 0
-                    self.longitude = 0
-                    self.mediaURL = ""
-                    return
-            }
-
-            self.firstName = firstName
-            self.lastName = lastName
-            self.latitude = latitude
-            self.longitude = longitude
-            self.mediaURL = mediaURL
-        }
-
-        static func studentsFromResults(results: [[String:AnyObject]]) -> [StudentInformation] {
-
-            var students = [StudentInformation]()
-            for result in results {
-                students.append(StudentInformation(dictionary: result))
-            }
-            return students
-        }
-    }
-
-    var students = [StudentInformation]()
-
     // MARK: Methods
-    func getLast100UserLocations(completionHandlerForLocations: (success: Bool, errorString: NSError?) -> Void) {
+    func getLast100UserLocations(completionHandlerForLocations: (success: Bool, students: [StudentInformation]?, errorString: NSError?) -> Void) {
         let paramaters: [String: AnyObject] = [ParameterKeys.Limit: ParameterValues.NumberOfEntries, ParameterKeys.Order: ParameterValues.ReverseChronological]
 
         let url = urlFromComponents(scheme: Constants.Scheme, host: Constants.Host, path: Constants.Path, withPathExtension: Methods.StudentLocation, parameters: paramaters)
@@ -122,26 +77,26 @@ class ParseClient: Networking {
         taskForHTTPMethod(request) { (result, error) in
             guard error == nil else {
                 print("There was an error with taskForHTTPMethod")
-                completionHandlerForLocations(success: false, errorString: error)
+                completionHandlerForLocations(success: false, students: nil, errorString: error)
                 return
             }
 
             self.deserializeJSONWithCompletionHandler(result) { (result, error) in
                 guard error == nil else {
                     print("There was an error with deserializing the JSON")
-                    completionHandlerForLocations(success: false, errorString: error)
+                    completionHandlerForLocations(success: false, students: nil, errorString: error)
                     return
                 }
 
                 guard let locations = result["results"] as? [[String: AnyObject]] else {
                     print("There was an error with results key in \(result)")
                     let nsError = NSError(domain: "getLast100UserLocations", code: 1, userInfo: nil)
-                    completionHandlerForLocations(success: false, errorString: nsError)
+                    completionHandlerForLocations(success: false, students: nil, errorString: nsError)
                     return
                 }
-                self.students = StudentInformation.studentsFromResults(locations)
+                let students = StudentInformation.studentsFromResults(locations)
 
-                completionHandlerForLocations(success: true, errorString: nil)
+                completionHandlerForLocations(success: true, students: students, errorString: nil)
             }
         }
     }

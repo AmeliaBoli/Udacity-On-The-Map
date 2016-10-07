@@ -15,12 +15,14 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
     let refreshControl = UIRefreshControl()
 
     let parseSession = ParseClient.sharedInstance()
-    var students: [ParseClient.StudentInformation]?
+    var studentLocationsModel = StudentLocationsArray.sharedInstance
+
+    var students: [StudentInformation]?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        students = parseSession.students
+        students = studentLocationsModel.fetchStudents()
 
         refreshControl.addTarget(self, action: #selector(reloadStudents), forControlEvents: .ValueChanged)
         tableView.addSubview(refreshControl)
@@ -28,13 +30,16 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
 
     // MARK: Table Management
     @IBAction func reloadStudents() {
-        parseSession.getLast100UserLocations() { (success, error) in
+        parseSession.getLast100UserLocations() { (success, students, error) in
             guard error == nil && success == true else {
                 print(error?.localizedDescription)
                 return
             }
 
-            self.students = self.parseSession.students
+            if let students = students {
+                self.studentLocationsModel.setStudents(students)
+                self.students = self.studentLocationsModel.fetchStudents()
+            }
 
             dispatch_async(dispatch_get_main_queue()) {
                 self.tableView.reloadData()

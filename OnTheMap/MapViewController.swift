@@ -15,6 +15,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CreatePin, AlertCo
     @IBOutlet weak var mapView: MKMapView!
 
     let parseSession = ParseClient.sharedInstance()
+    var studentLocationsModel = StudentLocationsArray.sharedInstance
     var annotations = [MKPointAnnotation]()
 
     override func viewDidLoad() {
@@ -24,7 +25,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CreatePin, AlertCo
 
     // MARK: Map Management
     @IBAction func loadMap(sender: UIBarButtonItem?) {
-        parseSession.getLast100UserLocations() { (success, error) in
+        parseSession.getLast100UserLocations() { (success, students, error) in
             guard error == nil && success == true else {
                 let errorString = error?.localizedDescription
                 print(errorString)
@@ -34,7 +35,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, CreatePin, AlertCo
                 }
                 return
             }
-
+            
+            if let students = students {
+                self.studentLocationsModel.setStudents(students)
+            }
+            
             let annotationsToRemove = self.annotations
             self.createMapAnotations()
 
@@ -47,7 +52,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CreatePin, AlertCo
 
     func createMapAnotations() {
         annotations.removeAll()
-        let students = parseSession.students
+        let students = studentLocationsModel.fetchStudents()
 
         for student in students {
             let latitude = CLLocationDegrees(floatLiteral: student.latitude)
