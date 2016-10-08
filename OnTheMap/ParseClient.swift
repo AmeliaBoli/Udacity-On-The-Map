@@ -11,19 +11,15 @@ import Foundation
 class ParseClient: Networking {
 
     // MARK: Singleton
-    class func sharedInstance() -> ParseClient {
-        struct Singleton {
-            static var sharedInstance = ParseClient()
-        }
-        return Singleton.sharedInstance
-    }
+    static var sharedInstance = ParseClient()
+    private init() {}
 
     // MARK: Properties
     let parseApplicationID = "QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr"
     let restAPIKey = "QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY"
 
     let session = NSURLSession.sharedSession()
-    let udacitySession = UdacityClient.sharedInstance()
+    let udacitySession = UdacityClient.sharedInstance
 
     var objectID: String? = nil
 
@@ -76,20 +72,26 @@ class ParseClient: Networking {
 
         taskForHTTPMethod(request) { (result, error) in
             guard error == nil else {
-                print("There was an error with taskForHTTPMethod")
+                #if DEBUG
+                    print("There was an error with taskForHTTPMethod")
+                #endif
                 completionHandlerForLocations(success: false, students: nil, errorString: error)
                 return
             }
 
             self.deserializeJSONWithCompletionHandler(result) { (result, error) in
                 guard error == nil else {
-                    print("There was an error with deserializing the JSON")
+                    #if DEBUG
+                        print("There was an error with deserializing the JSON")
+                    #endif
                     completionHandlerForLocations(success: false, students: nil, errorString: error)
                     return
                 }
 
                 guard let locations = result["results"] as? [[String: AnyObject]] else {
-                    print("There was an error with results key in \(result)")
+                    #if DEBUG
+                        print("There was an error with results key in \(result)")
+                    #endif
                     let nsError = NSError(domain: "getLast100UserLocations", code: 1, userInfo: nil)
                     completionHandlerForLocations(success: false, students: nil, errorString: nsError)
                     return
@@ -104,7 +106,9 @@ class ParseClient: Networking {
     func fetchLocationForUser(completionHandlerForFetchLocationForUser: (success: Bool, locationExists: Bool?, errorString: String?) -> Void) {
         guard let accountKey = udacitySession.accountKey else {
             let errorString = "There was a problem fetching the user location: no account key"
-            print(errorString)
+            #if DEBUG
+                print(errorString)
+            #endif
             completionHandlerForFetchLocationForUser(success: false, locationExists: nil, errorString: errorString)
             return
         }
@@ -118,21 +122,27 @@ class ParseClient: Networking {
 
         self.taskForHTTPMethod(request) { (result, error) in
             guard error == nil else {
-                print("There was an error with fetching the user location")
+                #if DEBUG
+                    print("There was an error with fetching the user location")
+                #endif
                 completionHandlerForFetchLocationForUser(success: false, locationExists: nil, errorString: error?.localizedDescription)
                 return
             }
 
             self.deserializeJSONWithCompletionHandler(result) { (result, error) in
                 guard error == nil else {
-                    print("There was an error with deserializing the JSON")
+                    #if DEBUG
+                        print("There was an error with deserializing the JSON")
+                    #endif
                     completionHandlerForFetchLocationForUser(success: false, locationExists: nil, errorString: error?.localizedDescription)
                     return
                 }
 
                 guard let results = result["results"] as? [[String: AnyObject]] else {
                     let errorString = "There was a problem with the results received for an existing location."
-                    print(errorString)
+                    #if DEBUG
+                        print(errorString)
+                    #endif
                     completionHandlerForFetchLocationForUser(success: false, locationExists: nil, errorString: errorString)
                     return
                 }
@@ -144,7 +154,9 @@ class ParseClient: Networking {
 
                 guard let objectID = results.last?["objectId"] as? String else {
                     let errorString = "There was a problem fetching the user location: results/objectID key in \(result)"
-                    print(errorString)
+                    #if DEBUG
+                        print(errorString)
+                    #endif
                     completionHandlerForFetchLocationForUser(success: false, locationExists: nil, errorString: errorString)
                     return
                 }
@@ -179,14 +191,18 @@ class ParseClient: Networking {
 
         self.taskForHTTPMethod(request) { (result, error) in
             guard error == nil else {
-                print("There was an error with taskForHTTPMethod")
+                #if DEBUG
+                    print("There was an error with taskForHTTPMethod")
+                #endif
                 completionHandlerForPostingLocations(success: false, errorString: error)
                 return
             }
 
             self.deserializeJSONWithCompletionHandler(result) { (result, error) in
                 guard error == nil else {
-                    print("There was an error with deserializing the JSON")
+                    #if DEBUG
+                        print("There was an error with deserializing the JSON")
+                    #endif
                     completionHandlerForPostingLocations(success: false, errorString: error)
                     return
                 }
@@ -194,8 +210,10 @@ class ParseClient: Networking {
                 guard let _ = result?["createdAt"],
                     let _ = result?["objectId"] else {
                         let errorString = "There is an error grabbing the creation date or object ID"
-                        print(errorString)
-                         let nsError = NSError(domain: "postLocation", code: 1, userInfo: nil)
+                        #if DEBUG
+                            print(errorString)
+                        #endif
+                        let nsError = NSError(domain: "postLocation", code: 1, userInfo: nil)
                         completionHandlerForPostingLocations(success: false, errorString: nsError)
                         return
                 }
@@ -207,7 +225,9 @@ class ParseClient: Networking {
     func updateLocation(mapString: String, mediaURL: String, latitude: Double, longitude: Double, completionHandlerForUpdateLocation: (success: Bool, errorString: NSError?) -> Void) {
         guard let objectID = objectID else {
             let errorString = "There was no object id while trying to update the location"
-            print(errorString)
+            #if DEBUG
+                print(errorString)
+            #endif
             let nsError = NSError(domain: "updateLocation", code: 1, userInfo: nil)
             completionHandlerForUpdateLocation(success: false, errorString: nsError)
             return
@@ -237,24 +257,30 @@ class ParseClient: Networking {
 
         self.taskForHTTPMethod(request) { (result, error) in
             guard error == nil else {
-                print("There was an error with taskForHTTPMethod")
+                #if DEBUG
+                    print("There was an error with taskForHTTPMethod")
+                #endif
                 completionHandlerForUpdateLocation(success: false, errorString: error)
                 return
             }
 
             self.deserializeJSONWithCompletionHandler(result) { (result, error) in
                 guard error == nil else {
-                    print("There was an error with deserializing the JSON")
+                    #if DEBUG
+                        print("There was an error with deserializing the JSON")
+                    #endif
                     completionHandlerForUpdateLocation(success: false, errorString: error)
                     return
                 }
 
                 guard let _ = result?["updatedAt"] else {
-                        let errorString = "There is an error grabbing the updated date"
+                    let errorString = "There is an error grabbing the updated date"
+                    #if DEBUG
                         print(errorString)
-                        let nsError = NSError(domain: "updateLocation", code: 1, userInfo: nil)
-                        completionHandlerForUpdateLocation(success: false, errorString: nsError)
-                        return
+                    #endif
+                    let nsError = NSError(domain: "updateLocation", code: 1, userInfo: nil)
+                    completionHandlerForUpdateLocation(success: false, errorString: nsError)
+                    return
                 }
                 completionHandlerForUpdateLocation(success: true, errorString: nil)
             }

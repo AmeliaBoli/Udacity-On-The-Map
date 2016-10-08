@@ -14,7 +14,7 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
 
     let refreshControl = UIRefreshControl()
 
-    let parseSession = ParseClient.sharedInstance()
+    let parseSession = ParseClient.sharedInstance
     var studentLocationsModel = StudentLocationsArray.sharedInstance
 
     var students: [StudentInformation]?
@@ -32,7 +32,9 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
     @IBAction func reloadStudents() {
         parseSession.getLast100UserLocations() { (success, students, error) in
             guard error == nil && success == true else {
-                print(error?.localizedDescription)
+                #if DEBUG
+                    print(error?.localizedDescription)
+                #endif
                 return
             }
 
@@ -67,7 +69,9 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
         let row = indexPath.row
 
         guard let student = students?[row] else {
-            print("There is a problem with the student at row \(row)")
+            #if DEBUG
+                print("There is a problem with the student at row \(row)")
+            #endif
             return
         }
 
@@ -95,10 +99,12 @@ class TableViewController: UIViewController, UITableViewDelegate, UITableViewDat
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "unwindToLogout" {
-            let udacitySession = UdacityClient.sharedInstance()
+            let udacitySession = UdacityClient.sharedInstance
             udacitySession.logout() { (success, error) in
                 guard error == nil else {
-                    print("Error")
+                    #if DEBUG
+                        print("Error")
+                    #endif
                     return false
                 }
                 return true

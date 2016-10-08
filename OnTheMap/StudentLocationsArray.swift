@@ -11,6 +11,7 @@ import Foundation
 class StudentLocationsArray {
     
     static var sharedInstance = StudentLocationsArray()
+    private init() {}
     
     private var students = [StudentInformation]()
     

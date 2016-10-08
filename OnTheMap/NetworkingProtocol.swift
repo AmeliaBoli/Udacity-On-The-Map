@@ -47,7 +47,9 @@ extension Networking {
         }
 
         guard let url = components.URL else {
-            print("There was a problem creating the URL")
+            #if DEBUG
+                print("There was a problem creating the URL")
+            #endif
             return NSURL()
         }
 
@@ -116,7 +118,9 @@ extension Networking {
 
     // MARK: Extension Helpers
     func sendError(error: String, domain: String, completionHandlerForSendError: (result: NSData!, error: NSError?) -> Void) {
-        print(error)
+        #if DEBUG
+            print(error)
+        #endif
         let userInfo = [NSLocalizedDescriptionKey : error]
         let nsError = NSError(domain: domain, code: 1, userInfo: userInfo)
         completionHandlerForSendError(result: nil, error: nsError)

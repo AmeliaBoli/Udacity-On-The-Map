@@ -16,19 +16,23 @@ protocol CreatePin {
 
 extension CreatePin where Self: UIViewController {
     func checkForExistingLocation() {
-        let parseSession = ParseClient.sharedInstance()
+        let parseSession = ParseClient.sharedInstance
 
         if parseSession.objectID != nil {
             alertUserToExistingLocation()
             return
         }
 
-        ParseClient.sharedInstance().fetchLocationForUser() { (success, locationExists, error) in
+        ParseClient.sharedInstance.fetchLocationForUser() { (success, locationExists, error) in
             if error != nil {
+                #if DEBUG
                 print(error)
                 return
+                #endif
             } else if success == false {
+                #if DEBUG
                 print("There is an error with retrieving previous locations")
+                #endif
                 return
             } else if let locationExists = locationExists {
                 if locationExists {

@@ -47,7 +47,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         guard let username = usernameField.text,
             let password = passwordField.text where !username.isEmpty && !password.isEmpty else {
                 let errorString = "There seems to be no username or password"
-                print(errorString)
+                #if DEBUG
+                    print(errorString)
+                #endif
                 createAlertControllerWithNoActions(nil, message: errorString)
                 return
         }
@@ -62,18 +64,22 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
             usernameForSession = username
             passwordForSession = password
         } else if FBSDKAccessToken.currentAccessToken() == nil {
-            print("There was a problem with parameters to get a session ID")
+            #if DEBUG
+                print("There was a problem with parameters to get a session ID")
+            #endif
             createAlertControllerWithNoActions(nil, message: "It looks like you either need to login with a Udacity account or a Facebook account")
         }
 
-        let udacitySession = UdacityClient.sharedInstance()
+        let udacitySession = UdacityClient.sharedInstance
 
         maskingView.hidden = false
 
         udacitySession.getSessionID(usernameForSession, password: passwordForSession) { (success, error) in
 
             guard error == nil && success == true else {
-                print("error with getSesssionID: \(error)")
+                #if DEBUG
+                    print("error with getSesssionID: \(error)")
+                #endif
                 dispatch_async(dispatch_get_main_queue()) {
                     self.maskingView.hidden = true
                     self.createAlertControllerWithNoActions(nil, message: error)
@@ -92,7 +98,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
         let escapedURLString = ("https://www.udacity.com/account/auth#!/signup")
         guard let url = NSURL(string: escapedURLString) else {
             let errorString = "There was a problem with the Udacity sign in page"
-            print(errorString)
+            #if DEBUG
+                print(errorString)
+            #endif
             createAlertControllerWithNoActions(nil, message: errorString)
             return
         }
@@ -103,7 +111,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate, FBSDKLoginButt
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
 
         if error != nil {
-            print(error.localizedDescription)
+            #if DEBUG
+                print(error.localizedDescription)
+            #endif
             createAlertControllerWithNoActions(nil, message: "There was a problem logging into Facebook")
             return
         }

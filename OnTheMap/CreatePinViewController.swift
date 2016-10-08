@@ -49,7 +49,9 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
 
         CLGeocoder().geocodeAddressString(locationTextField.text!) { (placemarks, error) in
             guard error == nil else {
-                print("There was an error with geocoding the location: \(error?.localizedDescription)")
+                #if DEBUG
+                    print("There was an error with geocoding the location: \(error?.localizedDescription)")
+                #endif
 
                 self.locationTextField.text = ""
 
@@ -63,8 +65,10 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
             }
 
             guard let placemarks = placemarks else {
-                print("there is an error placemark")
-
+                #if DEBUG
+                    print("there is an error placemark")
+                #endif
+                
                 dispatch_async(dispatch_get_main_queue()) {
                     self.activityIndicator.stopAnimating()
                     self.maskingView.hidden = true
@@ -138,58 +142,82 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
         do {
             url = try urlString.createValidURL()
         } catch String.UrlErrors.invalidString {
-            print("invalidString")
+            #if DEBUG
+                print("invalidString")
+            #endif
             createAlertControllerWithNoActions(nil, message: "I can't seem to make a valid URL from what was inputted")
             return
         } catch String.UrlErrors.invalidComponents {
-            print("invalidComponents")
+            #if DEBUG
+                print("invalidComponents")
+            #endif
             createAlertControllerWithNoActions(nil, message: "I can't seem to make a valid URL from what was inputted")
             return
         } catch String.UrlErrors.noDataDetector {
-            print("noDataDetector")
+            #if DEBUG
+                print("noDataDetector")
+            #endif
             createAlertControllerWithNoActions(nil, message: "There was an internal error")
             return
         } catch String.UrlErrors.noHost {
-            print("noHost")
+            #if DEBUG
+                print("noHost")
+            #endif
             createAlertControllerWithNoActions(nil, message: "There seems to be no host- https://")
             return
         } catch String.UrlErrors.wrongNumberOfLinks {
+            #if DEBUG
             print("wrongNumberOfLinks")
+            #endif
             showAlertOnMain("You might be missing the domain- .com")
             return
         } catch String.UrlErrors.invalidCharacter(let character) {
+            #if DEBUG
             print("invalidCharacter")
+            #endif
             createAlertControllerWithNoActions(nil, message: "There was a character in the URL that is not allowed: \(character)")
             return
         } catch {
+            #if DEBUG
             print("some other error")
+            #endif
             createAlertControllerWithNoActions(nil, message: "Hmm...something went wrong")
             return
         }
 
-        let udacitySession = UdacityClient.sharedInstance()
+        let udacitySession = UdacityClient.sharedInstance
 
         activityIndicator.startAnimating()
         maskingView.hidden = false
 
         udacitySession.fetchUserData() { (success, error) in
             guard error == nil && success == true else {
+                #if DEBUG
                 print("there is an error fetchUserData")
-
+                #endif
+                
+                var errorMessage = "."
+                if let error = error {
+                    errorMessage = ": \(error)"
+                }
+                
                 dispatch_async(dispatch_get_main_queue()) {
                     self.activityIndicator.stopAnimating()
                     self.maskingView.hidden = true
+                    self.createAlertControllerWithNoActions(nil, message: "There was an error requesting your account: \(errorMessage)")
                 }
                 return
             }
 
-            let parseSession = ParseClient.sharedInstance()
+            let parseSession = ParseClient.sharedInstance
 
             if parseSession.objectID == nil {
 
                 parseSession.postLocation(self.locationTextField.text!, mediaURL: url.absoluteString, latitude: self.latitude!, longitude: self.longitude!) { (success, error) in
                     guard error == nil && success == true else {
-                        print("There is an error with postLocation")
+                        #if DEBUG
+                            print("There is an error with postLocation")
+                        #endif
                         dispatch_async(dispatch_get_main_queue()) {
                             self.activityIndicator.stopAnimating()
                             self.maskingView.hidden = true
@@ -208,7 +236,9 @@ class CreatePinViewController: UIViewController, MKMapViewDelegate, UITextFieldD
             } else {
                 parseSession.updateLocation(self.locationTextField.text!, mediaURL: url.absoluteString, latitude: self.latitude!, longitude: self.longitude!) { (sucess, error) in
                     guard error == nil && success == true else {
-                        print("There is an error with updateLocation")
+                        #if DEBUG
+                            print("There is an error with updateLocation")
+                        #endif
                         dispatch_async(dispatch_get_main_queue()) {
                             self.activityIndicator.stopAnimating()
                             self.maskingView.hidden = true

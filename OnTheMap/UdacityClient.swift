@@ -12,13 +12,9 @@ import FBSDKLoginKit
 class UdacityClient: Networking {
 
     // MARK: Singleton
-    class func sharedInstance() -> UdacityClient {
-        struct Singleton {
-            static var sharedInstance = UdacityClient()
-        }
-        return Singleton.sharedInstance
-    }
-
+    static var sharedInstance = UdacityClient()
+    private init() {}
+    
     // MARK: Properties
     let session = NSURLSession.sharedSession()
 
@@ -69,7 +65,9 @@ class UdacityClient: Networking {
             bodyDict = ["facebook_mobile": ["access_token": token]]
         } else {
             let errorString = "There was an error creating the body for get session ID"
-            print(errorString)
+            #if DEBUG
+                print(errorString)
+            #endif
             completionHandlerForSession(success: false, errorString: errorString)
         }
 
@@ -86,7 +84,9 @@ class UdacityClient: Networking {
             guard error == nil else {
                 guard let error = error else {
                     let errorString = "There is an internal problem: get session id error"
-                    print("errorString")
+                    #if DEBUG
+                        print("errorString")
+                    #endif
                     completionHandlerForSession(success: false, errorString: errorString)
                     return
                 }
@@ -98,21 +98,27 @@ class UdacityClient: Networking {
 
             self.deserializeJSONWithCompletionHandler(data) { (data, error) in
                 guard error == nil else {
-                    print("There was an error with deserializing the JSON")
+                    #if DEBUG
+                        print("There was an error with deserializing the JSON")
+                    #endif
                     completionHandlerForSession(success: false, errorString: error?.localizedDescription)
                     return
                 }
 
                 guard let session = data?["session"] as? [String: AnyObject],
                     let id = session["id"] as? String else {
-                        print("there is an error session/id")
+                        #if DEBUG
+                            print("there is an error session/id")
+                        #endif
                         completionHandlerForSession(success: false, errorString: "session/id")
                         return
                 }
 
                 guard let account = data?["account"] as? [String: AnyObject],
                     let key = account["key"] as? String else {
-                        print("there is an error account/key")
+                        #if DEBUG
+                            print("there is an error account/key")
+                        #endif
                         completionHandlerForSession(success: false, errorString: "account/key")
                         return
                 }
@@ -130,7 +136,9 @@ class UdacityClient: Networking {
 
         guard let accountKey = accountKey,
             let completeMethod = substituteKeyInMethod(methodWithoutAccountKey, key: "accountKey", value: String(accountKey)) else {
-                print("There is a problem with the account key and/or method to fetch user data")
+                #if DEBUG
+                    print("There is a problem with the account key and/or method to fetch user data")
+                #endif
                 return
         }
 
@@ -148,7 +156,9 @@ class UdacityClient: Networking {
 
             self.deserializeJSONWithCompletionHandler(data) { (data, error) in
                 guard error == nil else {
-                    print("There was an error with deserializing the JSON")
+                    #if DEBUG
+                        print("There was an error with deserializing the JSON")
+                    #endif
                     completionHandlerForFetchUserData(success: false, errorString: error?.localizedDescription)
                     return
                 }
@@ -157,7 +167,9 @@ class UdacityClient: Networking {
                 guard let user = data?["user"] as? [String: AnyObject],
                     let firstName = user["first_name"] as? String,
                     let lastName = user["last_name"] as? String else {
-                        print("there is an error user/first/lastname")
+                        #if DEBUG
+                            print("there is an error user/first/lastname")
+                        #endif
                         completionHandlerForFetchUserData(success: false, errorString: "user/first/last_name")
                         return
                 }
@@ -202,7 +214,9 @@ class UdacityClient: Networking {
 
             self.deserializeJSONWithCompletionHandler(data) { (data, error) in
                 guard error == nil else {
-                    print("There was an error with deserializing the JSON")
+                    #if DEBUG
+                        print("There was an error with deserializing the JSON")
+                    #endif
                     completionHandlerForLogout(success: false, errorString: error?.localizedDescription)
                     return
                 }
@@ -211,7 +225,9 @@ class UdacityClient: Networking {
                     let _ = session["id"] as? String,
                     let _ = session["expiration"] as? String else {
                         let errorString = "There was an error logging out: session/id/expiration keys."
-                        print(errorString)
+                        #if DEBUG
+                            print(errorString)
+                        #endif
                         completionHandlerForLogout(success: false, errorString: errorString)
                         return
                 }

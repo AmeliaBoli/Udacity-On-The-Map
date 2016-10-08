@@ -14,7 +14,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CreatePin, AlertCo
 
     @IBOutlet weak var mapView: MKMapView!
 
-    let parseSession = ParseClient.sharedInstance()
+    let parseSession = ParseClient.sharedInstance
     var studentLocationsModel = StudentLocationsArray.sharedInstance
     var annotations = [MKPointAnnotation]()
 
@@ -28,8 +28,9 @@ class MapViewController: UIViewController, MKMapViewDelegate, CreatePin, AlertCo
         parseSession.getLast100UserLocations() { (success, students, error) in
             guard error == nil && success == true else {
                 let errorString = error?.localizedDescription
-                print(errorString)
-
+                #if DEBUG
+                    print(errorString)
+                #endif
                 dispatch_async(dispatch_get_main_queue()) {
                     self.alertUserToFailure(errorString!)
                 }
@@ -89,7 +90,9 @@ class MapViewController: UIViewController, MKMapViewDelegate, CreatePin, AlertCo
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         guard let urlString = view.annotation?.subtitle else {
             showAlertOnMain("Something went wrong")
-            print("There is a problem with \(view) annotation")
+            #if DEBUG
+                print("There is a problem with \(view) annotation")
+            #endif
             return
         }
 
@@ -139,13 +142,17 @@ class MapViewController: UIViewController, MKMapViewDelegate, CreatePin, AlertCo
                     return false
                 }
             } else {
-                let udacitySession = UdacityClient.sharedInstance()
+                let udacitySession = UdacityClient.sharedInstance
                 udacitySession.logout() { (success, error) in
                     if error != nil {
-                        print(error)
+                        #if DEBUG
+                            print(error)
+                        #endif
                         return false
                     } else if success == false {
-                        print("There is no error with logging out but it failed")
+                        #if DEBUG
+                            print("There is no error with logging out but it failed")
+                        #endif
                         return false
                     } else {
                         return true
